@@ -1,0 +1,48 @@
+SYSTEM = RELAX for SMALL SYSTEMS
+
+# Startparameter for this run:
+  NWRITE =      1    
+  LPETIM =      F    # write-flag & timer
+  PREC   = accurate    # medium together with ENCUT is good enough
+  ISPIN  =      1    # spin polarized calculation?
+  ENCUT  =    500    # cut-off energy of PP
+  NPAR = 4
+  GGA=PS
+  NBANDS= 8 
+  LWAVE = .TRUE.
+# Electronic Relaxation
+  EDIFF  =  1E-07    # stopping-criterion for ELM, Konverzgenzkriterium der elektronischen Energie
+  LREAL  = .FALSE.   # real-space projection : .FALSE. for systems < 20 atoms
+  ALGO = Normal  #IALGO  =     38    # algorithm : use 48 for large systems, 38 otherwise
+
+  NELMIN =      8    # require at least 8 electronic iterations per ionic step
+  NELM = 100
+  NELMDL = -5        # number of non-selfconsistent steps at the beginning
+#  LORBIT = 12  
+  LCHARG = .FALSE.   # don't write the charge file (costs memory per node)
+
+# Ionic relaxation
+  EDIFFG =     1E-05 # convergence criterion for ions; positive = max energy change
+                                                             negative = max residual force
+  NSW    =    0    # number of steps for IOM, maximale Anzahl der Iterationen
+  IBRION =      2    # ionic relax: 0-MD 1-quasi-New 2-CG
+  ISIF   =      3    # stress and relaxation: 2=const.Cell;3=Vol&Cell-relax;4=const.Vol&Cell.adjust
+
+  ISYM   =      0    # 0-nonsym 1-usesym 2-fastsym
+  # SYMPREC = 1E-03
+  
+
+  
+  POTIM  =    0.5    # time-step for ion-motion
+    
+
+# DOS related values:
+  EMIN   =    10.0   
+  EMAX   =   -10.0   # energy-range for DOS
+  ISMEAR =    0     # -5-tetra with Bloechl; -4-tet -1-fermi 0-gauss ; 1...N-MP (for metals)
+  SIGMA = 0.05                           use: -5 for small systems with more than 3 KPOINTS
+                                    0 for large semi-conducting systems, or with 1-2 KPOINTS
+                                    1 for relaxations in metals
+# ISMEAR = -5 oder 0 mit SIGMA = 0.05 für Nichtmetalle und ISMEAR = 1 oder 2 mit SIGMA = 0.15 für Metalle
+ 
+

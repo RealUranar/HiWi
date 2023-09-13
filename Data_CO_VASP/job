@@ -1,0 +1,29 @@
+#!/bin/bash -l
+
+### Job name and STDOUT
+#SBATCH --job-name=CO
+#SBATCH --output=/hpcwork/jh602643/Neu/CO/out_%j
+
+### User information
+#SBATCH --mail-user=jan.hempelmann@ac.rwth-aachen.de
+#SBATCH --mail-type=END
+#SBATCH --account=jara0033
+
+### Runtime, memory, and thread requirements
+#SBATCH --time=120:00:00
+#SBATCH --mem-per-cpu=4G
+#SBATCH --ntasks=96
+#SBATCH --export=NONE
+#SBATCH --exclusive
+
+### Increase stack size limit
+ulimit -s 600000
+
+### Load modules
+module load CHEMISTRY
+module load vasp
+
+### Start MPI-vasp
+cd /hpcwork/jh602643/Neu/CO
+srun --propagate=STACK vasp_mpi > out
+
