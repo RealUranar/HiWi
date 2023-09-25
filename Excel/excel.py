@@ -1,5 +1,7 @@
+import glob, sys
+sys.path.append("~/miniconda3/lib/python3.11/site-packages/openpyxl/")
+sys.path.append("~/miniconda3/lib/python3.11/site-packages/")
 import pandas as pd
-import glob
 
 class Excel():
     def __init__(self, fileName = "schedule.xlsx") -> None:
