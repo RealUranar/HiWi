@@ -1,7 +1,9 @@
 import glob, sys
-sys.path.append("~/miniconda3/lib/python3.11/site-packages/openpyxl/")
-sys.path.append("~/miniconda3/lib/python3.11/site-packages/")
+sys.path.append("Modules/")
+from dataclasses import dataclass
 import pandas as pd
+from job import Job
+
 
 class Excel():
     def __init__(self, fileName = "schedule.xlsx") -> None:
@@ -11,7 +13,7 @@ class Excel():
     def __enter__(self):
         excelFile = glob.glob(self.fileName)
         if excelFile == []:
-            self.table = pd.DataFrame(columns = ["ID", "Name", "Orca_Opt", "Orca_dihedral", "Gaussian", "Gromax"])
+            self.table = pd.DataFrame(columns = ["location","ID", "Name", "Orca_Opt", "Orca_Dihedral", "Gaussian", "Gromax"])
         else:
             self.table = pd.read_excel(excelFile[0], index_col="pandas_Index")
         return self
@@ -20,56 +22,56 @@ class Excel():
         self._ConditionalFormatting()
         self.table.to_excel(self.fileName ,index_label="pandas_Index", index=1)
         
-    def createJob(self, name):
+    def createJob(self, name, location):
         ID = 1 if len(self.table["ID"]) == 0 else self.table.index.max() + 2
-        new = pd.DataFrame(data = {"ID": pd.Series([ID], index= [ID-1]),
+        new = pd.DataFrame(data = {"location": location,
+                                "ID": pd.Series([ID], index= [ID-1]),
                                 "Name": name,
                                 "Orca_Opt": 3,
-                                "Orca_dihedral": 0,
-                                "Gaussian" : 3,
+                                "Orca_Dihedral": 0,
+                                "Gaussian" : 0,
                                 "Gromax" : 0})
         self.table = pd.concat([self.table, new], ignore_index=False)
 
-    def UpdateJob(self,ID, location, value):
-        self.table.at[ID-1, location] = value
+
+    def updateRow(self, job:Job):
+        ID = job.id
+        self.table.iloc[ID-1,3:] = job.getPanda()
+
+        
 
     def deleteJob(self, index):
         try:
             self.table = self.table.drop([index-1])
         except:
             print("Column does not exist!")
-            
-    def getNextJobs(self):
-        Jobs = {}
-        for row in self.table.iterrows():
-            jobs = []
-            for job in row[1].keys()[2:]:
-                if row[1][job] == 2:
-                    jobs.append("RUNNING")
-                    break
-                elif row[1][job] == -1:
-                    jobs.append("ERROR!")
-                    break
-                elif row[1][job] == 3:
-                    jobs.append(job)
 
-            Jobs[row[1]["ID"]] = {"Name": row[1]["Name"],
-                                  "Next_Job": jobs}
-        return Jobs
-    
+
+    def readJobs(self) ->list[Job]:
+        jobs = []
+        for index in self.table.index:
+            data = self.table.iloc[index]
+            jobs.append(Job(name = data["Name"], id=data["ID"], location=data["location"] ,tasks= dict(data[3:])))
+        return jobs
+        
+            
     def _ConditionalFormatting(self):
         def colorCode(row):
-            return ["background-color: green" if val == 1
-                    else "background-color: yellow" if val == 2
-                    else "background-color: blue" if val == 3
-                    else "background-color: red" if val == -1
+            return ["background-color: green" if val == 1   # Done
+                    else "background-color: yellow" if val == 2   #Working
+                    else "background-color: blue" if val == 3  #Ready
+                    else "background-color: red" if val == -1  #Error
                     else '' for val in row]
-        self.table = self.table.style.apply(colorCode, axis=1, subset=pd.IndexSlice[:, ["Orca_Opt", "Orca_dihedral", "Gaussian", "Gromax"]])
+        self.table = self.table.style.apply(colorCode, axis=1, subset=pd.IndexSlice[:, ["Orca_Opt", "Orca_Dihedral", "Gaussian", "Gromax"]])
         return
 
 if __name__ == "__main__":
     with Excel("test.xlsx") as scheduler:
-        scheduler.createJob("Test")
+        scheduler.createJob("Test", "TEST2")
+        job = scheduler.readJobs()[0]
+        job.updateJob(Orca_Opt = 120)
+        scheduler.updateRow(job)
+
         
 
 

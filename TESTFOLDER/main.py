@@ -1,47 +1,51 @@
 import glob, os, sys, shutil
 sys.path.append("Modules/")
-import excel
+from excel import Excel
+from job import Job
+from jobFinished import HasFinished
+import writeJobFile
+
+def submitJob(folder):
+    import subprocess
+    #shell = subprocess.run(["sbatch", "run_job.sh"], cwd=folder)
+    shell = subprocess.run(["echo", "TEST"], cwd=folder)
+    print(shell.returncode)
 
 def setupNewCalculation(NewFolder):
+    firstCalculationfolder = "Orca_opt"
     with open(f"{NewFolder}Input", "r") as InputFile:
         Name = InputFile.readline().split("=")[1].strip()
+    with Excel() as schedule:
+        schedule.createJob(Name, location = f"Calculations/{Name}/") #Setup New Job in the Excel Spreadsheet
 
-    with excel.Excel() as schedule:
-        schedule.createJob(Name) #Setup New Job in the Excel Spreadsheet
-
-    os.makedirs(f"Calculations/{Name}/Orca") # Create ne SubFolders
+    os.makedirs(f"Calculations/{Name}/{firstCalculationfolder}") # Create new SubFolders
     xyzFilePath = glob.glob(f"{NewFolder}*.xyz")[0]  #Get Path to the xyz File
-    shutil.copy(xyzFilePath, f"Calculations/{Name}/Orca/start_molecule.xyz") #Copy xyz File to new directory
+    shutil.copy(xyzFilePath, f"Calculations/{Name}/{firstCalculationfolder}/start_molecule.xyz") #Copy xyz File to new directory
     shutil.copy(f"{NewFolder}Input", f"Calculations/{Name}/Input")
-    shutil.rmtree(NewFolder, ignore_errors = True) # Delete Input Folder
+    shutil.rmtree(NewFolder, ignore_errors = False) # Delete Input Folder
 
 #Handle new Jobs
 for NewFolder in glob.glob("Input/*/"):
-    print(f"TEST1 {NewFolder}")
     setupNewCalculation(NewFolder)
 
 #Get new Jobs to set up
-with excel.Excel() as scheduler:
-    jobs = scheduler.getNextJobs()
+with Excel() as scheduler:
+    jobs = scheduler.readJobs()
 
-#print(jobs)
-for id in jobs.keys():
-    for job in jobs[id]["Next_Job"]:
-        match job:
-            case "ERROR!":
-                print(f"Job {id} has crashed")
-            case "RUNNING":
-                print(f"Job {id} is running")
+for job in jobs:
+    for runningJob in job.getRunningJobs():
+        match runningJob:
             case "Orca_Opt":
-                print(f"Starting Orca opt for Job {id}")
-            case "Orca_dihedral":
-                print(f"Starting Orca dihedral scan for Job {id}")
+                if HasFinished.orca(f"{job.location}{runningJob}/"):
+                    job.updateJob(Orca_Opt = 1, Orca_Dihedral = 3, Gaussian = 3)
+                
+            case "Orca_Dihedral":
+                if HasFinished.orcaDihedral(f"{job.location}{runningJob}/"):
+                    job.updateJob(Orca_Dihedral = 1)
             case "Gaussian":
-                print(f"Starting gaussian opt for Job {id}")
-            case "Gromax":
-                print(f"Starting Gromax for Job {id}")
-            case _:
-                print("Something went really wrong")
-    print()
+                if HasFinished.gaussian(f"{job.location}{runningJob}/"):
+                    job.updateJob(Gaussian = 1)
 
-
+    with Excel() as scheduler:
+        scheduler.updateRow(job)
+    
