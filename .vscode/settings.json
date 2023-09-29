@@ -1,5 +1,5 @@
 {
     "python.analysis.extraPaths": [
-        "./TESTFOLDER/Modules"
+        "~/src/HiWi/TESTFOLDER/Modules"
     ]
 }

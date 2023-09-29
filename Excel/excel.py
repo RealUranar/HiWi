@@ -39,7 +39,6 @@ class Excel():
         self.table.iloc[ID-1,3:] = job.getPanda()
 
         
-
     def deleteJob(self, index):
         try:
             self.table = self.table.drop([index-1])

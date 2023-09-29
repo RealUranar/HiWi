@@ -62,4 +62,4 @@ O          -1.38250         1.07030        -0.76590
 --Link1--
 %Chk=F1a_ortho.chk
 #P HF/6-31G* SCF=Tight Geom=AllCheck Guess=Read
-	Pop=MK IOp(6/33=2, 6/41=10, 6/42=17)
+Pop=MK IOp(6/33=2, 6/41=10, 6/42=17)

@@ -1,0 +1,11 @@
+! BP def2-SVP def2/J Opt UKS
+%pal
+nprocs 16
+end
+
+%geom Scan
+D 23 10 11 12 = 270, 180, 30
+end
+end
+
+* xyzfile 0 1 orca_opt.xyz

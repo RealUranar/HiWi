@@ -43,7 +43,6 @@ class Job():
         """
         
         """
-        print(kwargs)
         for newTask in kwargs.keys():
             if newTask not in list(self.tasksPandas.keys()):
                 print("Invaid task!")

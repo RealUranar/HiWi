@@ -1,0 +1,1 @@
+pip install numpy, matplotlib, pandas, openpyxl, Jinja2, rdkit

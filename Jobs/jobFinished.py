@@ -2,16 +2,27 @@ import sys
 import glob
 
 class HasFinished():
-    def orca(folder):
+    def _readTail(folder, gauss=False):
+        tail = ""
         try:
-            with open(glob.glob(f"{folder}/output.*.txt")[0], "r") as file:
-                tail = file.readlines()[-4:]
-        except IndexError:
-            print("File not found!")
-            return
+            if gauss:
+                folder = glob.glob(f"{folder}*.log")[0]
+            else:
+                folder = glob.glob(f"{folder}output.*.txt")[0]
 
-        hasFinished = "TOTAL RUN TIME:" in str(tail)
-        succesfull = "****ORCA TERMINATED NORMALLY****" in str(tail)
+        except IndexError:
+            print(f"File {folder}output.*.txt not found!")
+            return tail
+        
+        with open(folder, "r") as file:
+            tail = str(file.readlines()[-15:])
+        return tail
+
+    def orca(folder):
+        hasFinished, succesfull = False, False
+        tail = HasFinished._readTail(folder)
+        hasFinished = "TOTAL RUN TIME:" in tail
+        succesfull = "****ORCA TERMINATED NORMALLY****" in tail
         return hasFinished, succesfull
     
 
@@ -24,18 +35,26 @@ class HasFinished():
 
 
     def gaussian(folder):
-        try:
-            with open(glob.glob(f"{folder}/*.log")[0], "r") as file:
-                tail = file.readlines()[-4:]
-        except IndexError:
-            print("File not found!")
-            return
-
-        hasFinished = "Normal termination of Gaussian" in str(tail)
+        hasFinished, succesfull = False, True
+        tail = HasFinished._readTail(folder, gauss=True)
+        hasFinished = "Normal termination of Gaussian" in tail
         #succesfull = "****ORCA TERMINATED NORMALLY****" in str(tail)
-        return hasFinished#, succesfull
+        return hasFinished, succesfull
+
+
+    def gromacs(folder):
+        hasFinished, succesfull = False, False
+
+        tail = HasFinished._readTail(folder)
+        if "Segmentation fault" in str(tail) or "DUE TO TIME LIMIT" in str(tail):
+            hasFinished = True
+        elif "Writing final coordinates." in str(tail): 
+            hasFinished = True
+            succesfull = True
+
+        return hasFinished, succesfull
 
 
 if __name__ == "__main__":
     #print(HasFinished.orcaDihedral("../Jobs"))
-    print(HasFinished.gaussian("../Jobs"))
+    print(HasFinished.orca("../Jobs/"))

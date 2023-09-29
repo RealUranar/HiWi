@@ -55,23 +55,3 @@ class Molecule():
                 file.write(f"{line}\n")
             file.write(tail)
             
-    def findNNDihedral(self):
-        for bond in self.mol.GetBonds():  #Find the correct Bond between two N=N
-            if bond.GetBeginAtom().GetSymbol() == "N" and bond.GetEndAtom().GetSymbol() == "N":
-                break
-            
-        N1 = bond.GetBeginAtom()
-        N2 = bond.GetEndAtom()
-        atomsIndex = [N1.GetIdx()]  #Save the Index of the first N
-        
-        for atom in N1.GetNeighbors():  #Check the neighbors of the first N and save the Index of the bonded atom.
-            if atom.GetSymbol() != "N":
-                atomsIndex.insert(0, atom.GetIdx())
-            if atom.GetSymbol() == "N":
-                atomsIndex.insert(2, atom.GetIdx())
-
-        for atom in N2.GetNeighbors():  # Find the index of the last non N-atom
-            if atom.GetSymbol() != "N":
-                atomsIndex.insert(3, atom.GetIdx())
-                
-        return atomsIndex
