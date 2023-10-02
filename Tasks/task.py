@@ -1,6 +1,7 @@
 import sys
 sys.path.append("Modules/")
 from job import Job
+from excel import Excel
 
 class Task():
     def __init__(self, job):
@@ -42,3 +43,9 @@ class Task():
                 atomsIndex.insert(3, atom.GetIdx())
                 
         return atomsIndex
+    
+if __name__ == "__main__":
+    with Excel() as scheduler:
+        jobs = scheduler.readJobs()
+    ts = Task(jobs[0])
+    print(ts._findNNDihedral())

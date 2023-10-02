@@ -11,16 +11,23 @@ class HasFinished():
                 folder = glob.glob(f"{folder}output.*.txt")[0]
 
         except IndexError:
-            print(f"File {folder}output.*.txt not found!")
+            if gauss:
+                print(f"File {folder}*.log not found!")
+            else:
+                print(f"File {folder}output.*.txt not found!")
+			
             return tail
         
-        with open(folder, "r") as file:
+        with open(folder, "r", encoding = "ISO-8859-1") as file:
             tail = str(file.readlines()[-15:])
         return tail
 
     def orca(folder):
         hasFinished, succesfull = False, False
-        tail = HasFinished._readTail(folder)
+        try:
+            tail = HasFinished._readTail(folder)
+        except:
+            return False, False
         hasFinished = "TOTAL RUN TIME:" in tail
         succesfull = "****ORCA TERMINATED NORMALLY****" in tail
         return hasFinished, succesfull

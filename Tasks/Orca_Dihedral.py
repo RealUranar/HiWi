@@ -47,7 +47,9 @@ class Orca_Dihedral(Task):
             JobScripts().writeOrcaJob(name = self.job.name, location=f"{self.newPath}/{subFolder}")
 
     def submit(self,subFolder):
-        return super().submit(f"{self.newPath}/{subFolder}")
+        for subFolder in self.subFolders:
+            super().submit(f"{self.newPath}/{subFolder}")
+        return
         
 
 if __name__ == "__main__":

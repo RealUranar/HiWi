@@ -5,6 +5,11 @@ from excel import Excel
 from job import Job
 from jobFinished import HasFinished
 from Orca_Opt import Orca_opt
+from Orca_Dihedral import Orca_Dihedral
+from Gaussian import Gaussian_opt
+from GromacsEnergy import GromacsEnergy
+from GromacsEquillibration import GromacsEquill
+from GromacsProduction import GromacsProd
 
 
 # Setting up the new Calculation in Excel spread sheet
@@ -64,18 +69,48 @@ for job in jobs:
             case "Orca_Opt":
                 print(f"Starting Orca_Opt for Job id {job.id}")
                 task = Orca_opt(job)
-                #task.moveFiles()
+                task.moveFiles()
+                task.writeInputFile()
+                task.generateJobScript()
+                task.submit()
+                job.updateJob(Orca_Opt = 2)
+
+            case "Orca_Dihedral":
+                task = Orca_Dihedral(job)
+                task.moveFiles()
+                task.writeInputFile()
+                task.generateJobScript()
+                task.submit()
+                job.updateJob(Orca_Dihedral = 2)
+                print(f"Starting Orca_Dihedral for Job id {job.id}")
+
+            case "Gaussian":
+                task = Gaussian_opt(job)
+                task.moveFiles()
+                task.writeInputFile()
+                task.generateJobScript()
+                task.submit()
+                job.updateJob(Gaussian = 2)
+                print(f"starting Gaussian calc for Job id {job.id}")
+
+            case "Gromacs":
+                task = GromacsEnergy(job)
+                task.moveFiles()
+                task.writeFiles()
+                task.writeInputFile()
+                task.generateJobScript()
+                task.submit()
+                job.updateJob(Gromacs = 2)
+
+                task = GromacsEquill(job)
                 task.writeInputFile()
                 task.generateJobScript()
                 task.submit()
 
-            case "Orca_Dihedral":
-                print(f"Starting Orca_Dihedral for Job id {job.id}")
-
-            case "Gaussian":
-                print(f"starting Gaussian calc for Job id {job.id}")
-
-            case "Gromacs":
+                task = GromacsProd(job)
+                task.writeInputFile()
+                task.generateJobScript()
+                task.submit()
                 print(f"starting Gromacs calc for Job id {job.id}")
 
 

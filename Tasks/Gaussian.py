@@ -63,14 +63,14 @@ class Gaussian_opt(Task):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Gaussian"
-        self.inputFile = ""
+        #self.inputFile = "" #Looks dead no idea what it was for...
 
     def moveFiles(self):
         os.mkdir(f"{self.job.location}/Gaussian") # Create new SubFolders
         optiFilePath = glob.glob(f"{self.job.location}/Orca_Opt/orca.xyz")[0]  #Get Path to the optimized structure
         shutil.copy(optiFilePath, f"{self.newPath}/orca_opt.xyz") #Copy xyz File to new directory
 
-    def setupMolecule(self, removeAtomNr = 22, removeAtomFragmentNr = 30, combineAt = (19,29)):
+    def _setupMolecule(self, removeAtomNr = 22, removeAtomFragmentNr = 30, combineAt = (19,29)):
         molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
         molecule.removeAtom( removeAtomNr)
 
@@ -83,7 +83,7 @@ class Gaussian_opt(Task):
 
 
     def writeInputFile(self):
-        comFile = self.setupMolecule()
+        comFile = self._setupMolecule()
         with open(f"{self.newPath}/combined.com", "w") as file:
                     file.writelines([
                         "%Chk=F1a_ortho.chk\n",
