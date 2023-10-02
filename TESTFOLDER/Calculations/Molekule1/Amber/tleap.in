@@ -1,0 +1,8 @@
+#tleap.in
+source leaprc.gaff
+#source leaprc.water.tip3p
+loadAmberPrep orca.prep
+loadamberparams orca.frcmod
+SYS = loadpdb NEWPDB4x4.PDB
+SaveAmberParm SYS System.prmtop System.inpcrd
+quit

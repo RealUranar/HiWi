@@ -31,7 +31,7 @@ class HasFinished():
         for subfolder in subfolders:
             if HasFinished.orca(f"{folder}/{subfolder}/") != (True,True):
                 return False
-        return True
+        return True, True
 
 
     def gaussian(folder):

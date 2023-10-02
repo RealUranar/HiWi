@@ -9,9 +9,6 @@ class Task():
     def moveFiles(self):
         pass
 
-    def runTask(self):
-        pass
-
     def writeInputFile(self):
         pass
 
