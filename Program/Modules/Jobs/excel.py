@@ -13,7 +13,7 @@ class Excel():
     def __enter__(self):
         excelFile = glob.glob(self.fileName)
         if excelFile == []:
-            self.table = pd.DataFrame(columns = ["location","ID", "Name", "Orca_Opt", "Orca_Dihedral", "Gaussian", "Gromacs"])
+            self.table = pd.DataFrame(columns = ["location","ID", "Name", "Orca_Opt", "Orca_Dihedral", "Gaussian", "Amber", "GromacsEnergy", "GromacsEquil", "GromacsProduction"])
         else:
             self.table = pd.read_excel(excelFile[0], index_col="pandas_Index")
         return self
@@ -30,7 +30,10 @@ class Excel():
                                 "Orca_Opt": 3,
                                 "Orca_Dihedral": 0,
                                 "Gaussian" : 0,
-                                "Gromacs" : 0})
+                                "Amber" : 0,
+                                "GromacsEnergy":0,
+                                "GromacsEquil" : 0,
+                                "GromacsProduction": 0})
         self.table = pd.concat([self.table, new], ignore_index=False)
 
 
@@ -61,7 +64,7 @@ class Excel():
                     else "background-color: blue" if val == 3  #Ready
                     else "background-color: red" if val == -1  #Error
                     else '' for val in row]
-        self.table.style.apply(colorCode, axis=1, subset=pd.IndexSlice[:, ["Orca_Opt", "Orca_Dihedral", "Gaussian", "Gromacs"]])
+        self.table.style.apply(colorCode, axis=1, subset=pd.IndexSlice[:, ["Orca_Opt", "Orca_Dihedral", "Gaussian", "Amber", "GromacsEnergy", "GromacsEquil", "GromacsProduction"]])
         #self.table = self.table.style.apply(colorCode, axis=1, subset=pd.IndexSlice[:, ["Orca_Opt", "Orca_Dihedral", "Gaussian", "Gromax"]])
         return
 

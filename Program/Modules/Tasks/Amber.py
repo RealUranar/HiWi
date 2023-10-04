@@ -1,17 +1,15 @@
-import sys, os, shutil, glob
-sys.path.append("../HPC_Jobs/")
+import os, shutil, glob
 import subprocess
-from Sbatch import JobScripts
 from task import Task
-from excel import Excel
-
-
 
 
 class Amber(Task):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Amber"
+        self.executionOrder = [self.moveFiles,
+                        self.writeInputFile,
+                        self.submit]
 
     def moveFiles(self):
         os.mkdir(self.newPath) # Create new SubFolders
@@ -36,15 +34,20 @@ class Amber(Task):
                 ])
 
     def submit(self):
+        self.job.updateJob(Amber = 2)
         ret = subprocess.run(f"./amber.sh",
                             capture_output = True, 
 	                        text = True,
                             cwd=self.newPath)
-        print(ret)
-
+        if ret.returncode != 0:
+             self.job.updateJob(Amber = -1)
+             
+        self.job.updateJob(Amber = 1, GromacsEnergy= 3)
+        print(f"Amber file conversion returned code: {ret.returncode}")
 
 
 if __name__ == "__main__":
+    from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     

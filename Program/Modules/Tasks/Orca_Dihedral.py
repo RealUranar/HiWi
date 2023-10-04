@@ -1,8 +1,7 @@
-import sys, os, shutil, glob
-
+import os, shutil, glob
 from Sbatch import JobScripts
 from task import Task
-from excel import Excel
+
 
 
 class Orca_Dihedral(Task):
@@ -13,6 +12,10 @@ class Orca_Dihedral(Task):
         self.steps = 30
         super().__init__(job)
         self.newPath = f"{self.job.location}Orca_Dihedral"
+        self.executionOrder = [self.moveFiles,
+                        self.writeInputFile,
+                        self.generateJobScript,
+                        self.submit]
 
     def moveFiles(self):
         optiFilePath = glob.glob(f"{self.job.location}/Orca_Opt/orca.xyz")[0]  #Get Path to the optimized structure
@@ -46,6 +49,7 @@ class Orca_Dihedral(Task):
             JobScripts().writeOrcaJob(name = self.job.name, location=f"{self.newPath}/{subFolder}")
 
     def submit(self):
+        self.job.updateJob(Orca_Dihedral = 2)
         for subFolder in self.subFolders:
             super().submit(f"{self.newPath}/{subFolder}")
         return        
@@ -61,14 +65,17 @@ class Orca_Dihedral(Task):
         
         for subfolder in self.subfolders:
             hasFinished, succesfull = oracFinished(f"{self.newPath}/{subfolder}/")
-            if succesfull == False:
-                self.job.updateJob(Orca_Dihedral = -1)
-            if hasFinished == False:
-                return
-        self.job.updateJob(Orca_Dihedral = 1, Gaussian = 3)
+            
+            if hasFinished:
+                if succesfull:
+                    self.job.updateJob(Orca_Dihedral = 1, Gaussian = 3)
+                else:
+                    self.job.updateJob(Orca_Dihedral = -1)
+        
 
 
 if __name__ == "__main__":
+    from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     

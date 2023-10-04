@@ -1,16 +1,16 @@
-import sys, os, shutil, glob
-sys.path.append("../HPC_Jobs/")
-import numpy as np
+import os, shutil
 from Sbatch import JobScripts
 from task import Task
-from excel import Excel
+
 import subprocess
 
 class GromacsProd(Task):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Gromacs"
-
+        self.executionOrder = [self.writeInputFile,
+                               self.generateJobScript,
+                               self.submit]
 
     def writeInputFile(self):
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
@@ -28,17 +28,16 @@ class GromacsProd(Task):
         JobScripts().writeGausianJob(name = self.job.name, location=self.newPath)
 
 
-
     def submit(self):
-        ret = subprocess.run(f"./prod.sh",
-                    capture_output = True, 
+        subprocess.run(f"./prod.sh",
                     text = True,
                     cwd=self.newPath)
-        print(ret)
+        
+        self.job.updateJob(GromacsProduction = 2)
         return super().submit(self.newPath)
         
-
-    def gromacs(self):
+        
+    def isFinished(self):
         hasFinished, succesfull = False, False
 
         tail = self._readTail(self.newPath)
@@ -48,13 +47,17 @@ class GromacsProd(Task):
             hasFinished = True
             succesfull = True
 
-        if succesfull == False:
-            self.job.updateJob(Gromacs = -1)
-        if hasFinished == False:
-            return
-        self.job.updateJob(Gromacs = 1)
+        if hasFinished:
+            if succesfull:
+                self.job.updateJob(GromacsProduction = 1)
+            else:
+                self.job.updateJob(GromacsProduction = -1)
+
+        
+
 
 if __name__ == "__main__":
+    from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     

@@ -1,16 +1,15 @@
-import sys, os, shutil, glob
-sys.path.append("../HPC_Jobs/")
-import numpy as np
-from Sbatch import JobScripts
+import os, shutil
 from task import Task
-from excel import Excel
 import subprocess
 
 class GromacsEquill(Task):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Gromacs"
-
+        self.executionOrder = [self.writeInputFile,
+                               self.generateJobScript,
+                               self.submit]
+        
     def writeInputFile(self, temp =310):
         shutil.copy("Modules/GromacsScripts/nvt.mdp", f"{self.newPath}")
 
@@ -30,10 +29,15 @@ class GromacsEquill(Task):
                     capture_output = True, 
                     text = True,
                     cwd=self.newPath)
-        print(ret)
+        if ret.returncode != 0:
+             self.job.updateJob(GromacsEquil = -1)
+             
+        self.job.updateJob(GromacsEquil = 1, GromacsProduction= 3)
+        print(f"Gromacs equillibration returned code: {ret.returncode}")
         
 
 if __name__ == "__main__":
+    from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     

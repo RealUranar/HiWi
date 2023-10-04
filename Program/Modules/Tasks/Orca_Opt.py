@@ -1,15 +1,17 @@
-import sys, os, shutil, glob
-sys.path.append("../HPC_Jobs/")
-
+import os, shutil, glob
 from Sbatch import JobScripts
 from task import Task
-from excel import Excel
+
 
 
 class Orca_opt(Task):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Orca_Opt"
+        self.executionOrder = [self.moveFiles,
+                               self.writeInputFile,
+                               self.generateJobScript,
+                               self.submit]
 
     def moveFiles(self):
         os.mkdir(self.newPath) # Create new SubFolders
@@ -37,6 +39,7 @@ class Orca_opt(Task):
         JobScripts().writeOrcaJob(name = self.job.name, location=self.newPath)
 
     def submit(self):
+        self.job.updateJob(Orca_Opt = 2)
         return super().submit(self.newPath)
         
     def isFinished(self):
@@ -44,13 +47,15 @@ class Orca_opt(Task):
         tail = self._readTail(self.newPath)
         hasFinished = "TOTAL RUN TIME:" in tail
         succesfull = "****ORCA TERMINATED NORMALLY****" in tail
-        if succesfull == False:
-            self.job.updateJob(Orca_opt = -1)
-        if hasFinished == False:
-            return
-        self.job.updateJob(Orca_opt = 1, Orca_Dihedral = 3)
+        if hasFinished == True:
+            if succesfull == True:
+                self.job.updateJob(Orca_Opt = 1, Orca_Dihedral = 3)
+            else:
+                self.job.updateJob(Orca_Opt = -1)
+            
 
 if __name__ == "__main__":
+    from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     

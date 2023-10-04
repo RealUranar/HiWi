@@ -1,9 +1,7 @@
-import sys, os, shutil, glob
-sys.path.append("../HPC_Jobs/")
+import os, shutil, glob
 
 from Sbatch import JobScripts
 from task import Task
-from excel import Excel
 
 from rdkit import Chem
 from rdkit.Chem.rdDetermineBonds import DetermineBonds
@@ -64,26 +62,19 @@ class Gaussian_opt(Task):
         super().__init__(job)
         self.newPath = f"{self.job.location}Gaussian"
         self.inputFile = ""
+        self.executionOrder = [self.moveFiles,
+                               self.writeInputFile,
+                               self.generateJobScript,
+                               self.submit]
 
     def moveFiles(self):
         os.mkdir(f"{self.job.location}/Gaussian") # Create new SubFolders
         optiFilePath = glob.glob(f"{self.job.location}/Orca_Opt/orca.xyz")[0]  #Get Path to the optimized structure
         shutil.copy(optiFilePath, f"{self.newPath}/orca_opt.xyz") #Copy xyz File to new directory
 
-    def setupMolecule(self, removeAtomNr = 22, removeAtomFragmentNr = 30, combineAt = (19,29)):
-        molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
-        molecule.removeAtom( removeAtomNr)
-
-        fragment = Molecule(f"Modules/fragment.xyz")
-        fragment.removeAtom(removeAtomFragmentNr)
-
-        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), combineAt)
-        comFile = MoleculeActions.Mol2COM(combinedMolecules.getMol())
-        return comFile
-
 
     def writeInputFile(self):
-        comFile = self.setupMolecule()
+        comFile = self._setupMolecule()
         with open(f"{self.newPath}/combined.com", "w") as file:
                     file.writelines([
                         "%Chk=F1a_ortho.chk\n",
@@ -104,22 +95,34 @@ class Gaussian_opt(Task):
         JobScripts().writeGausianJob(name = self.job.name, location=self.newPath)
 
     def submit(self):
+        self.job.updateJob(Gaussian = 2)
         return super().submit(self.newPath)
         
-    def gaussian(self):
+    def isFinished(self):
         hasFinished, succesfull = False, True
         tail = self._readTail(self.newPath, gauss=True)
         hasFinished = "Normal termination of Gaussian" in tail
         #succesfull = "****ORCA TERMINATED NORMALLY****" in str(tail)
-        if succesfull == False:
-            self.job.updateJob(Gaussian = -1)
-        if hasFinished == False:
-            return
-        self.job.updateJob(Gaussian = 1, Gromacs = 3)
+            
+        if hasFinished:
+            if succesfull:
+                self.job.updateJob(Gaussian = 1, Gromacs = 3)
+            else:
+                self.job.updateJob(Gaussian = -1)
 
+    def _setupMolecule(self, removeAtomNr = 22, removeAtomFragmentNr = 30, combineAt = (19,29)):
+        molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
+        molecule.removeAtom( removeAtomNr)
 
+        fragment = Molecule(f"Modules/fragment.xyz")
+        fragment.removeAtom(removeAtomFragmentNr)
+
+        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), combineAt)
+        comFile = MoleculeActions.Mol2COM(combinedMolecules.getMol())
+        return comFile
 
 if __name__ == "__main__":
+    from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     

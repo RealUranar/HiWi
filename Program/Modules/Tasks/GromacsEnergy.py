@@ -1,16 +1,17 @@
-import sys, os, shutil, glob
-sys.path.append("../HPC_Jobs/")
-import numpy as np
-from Sbatch import JobScripts
-from task import Task
-from excel import Excel
-from scipy.interpolate import CubicSpline
+import os, shutil, glob
 import subprocess
+from task import Task
+
+import numpy as np
 
 class GromacsEnergy(Task):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Gromacs"
+        self.executionOrder = [self.moveFiles,
+                               self.writeInputFile,
+                               self.generateJobScript,
+                               self.submit]
 
     def moveFiles(self):
         os.mkdir(self.newPath) # Create new SubFolders
@@ -26,7 +27,7 @@ class GromacsEnergy(Task):
 
 
     def writeInputFile(self):
-        self.__getEnergys()
+        self._getEnergys()
         shutil.copy("Modules/GromacsScripts/em.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/table_fourier.itp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/posre.itp", f"{self.newPath}")
@@ -55,7 +56,32 @@ class GromacsEnergy(Task):
         with open(f"{self.newPath}/System.gro", "w") as file:
             file.writelines(lines)
 
-    def __getEnergys(self):
+
+    def generateJobScript(self):
+        with open(f"{self.newPath}/em.sh","w") as file:
+            file.writelines([
+            "#!/usr/local_rwth/bin/zsh\n",
+            "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
+            "gmx grompp -f em.mdp -c System.gro -p System.top -r System.gro -o em.tpr\n",
+            "gmx mdrun -v -deffnm em -tableb table_d0.xvg\n"
+            ])
+        os.chmod(f"{self.newPath}/em.sh", 0o755)
+
+
+    def submit(self):
+        ret = subprocess.run(f"./em.sh",
+                    capture_output = True, 
+                    text = True,
+                    cwd=self.newPath)
+        
+        if ret.returncode != 0:
+             self.job.updateJob(GromacsEnergy = -1)
+             
+        self.job.updateJob(GromacsEnergy= 1, GromacsEquil= 3)
+        print(f"Gromacs energy minimization returned code: {ret.returncode}")
+        
+    def _getEnergys(self):
+        from scipy.interpolate import CubicSpline
         energyFiles = []
         subfolders = ["singlet_left", "singlet_right", "triplet_left", "triplet_right"]
         for subFolder in subfolders:
@@ -86,25 +112,8 @@ class GromacsEnergy(Task):
 
         np.savetxt(f"{self.newPath}/table_d0.xvg", np.column_stack((phi_ges, E_ges, y_minus)), fmt="%12.8f\t %12.8f\t %12.8f")
 
-    def generateJobScript(self):
-        with open(f"{self.newPath}/em.sh","w") as file:
-            file.writelines([
-            "#!/usr/local_rwth/bin/zsh\n",
-            "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
-            "gmx grompp -f em.mdp -c System.gro -p System.top -r System.gro -o em.tpr\n",
-            "gmx mdrun -v -deffnm em -tableb table_d0.xvg\n"
-            ])
-        os.chmod(f"{self.newPath}/em.sh", 0o755)
-
-    def submit(self):
-        ret = subprocess.run(f"./em.sh",
-                    capture_output = True, 
-                    text = True,
-                    cwd=self.newPath)
-        print(ret)
-        
-
 if __name__ == "__main__":
+    from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     

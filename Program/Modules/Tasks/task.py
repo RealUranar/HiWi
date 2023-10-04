@@ -1,10 +1,12 @@
 import sys, glob
 sys.path.append("Modules/")
-from job import Job
+#from job import Job
 
 class Task():
     def __init__(self, job):
         self.job : Job = job
+        self.newPath = ""
+        self.executionOrder = []
 
     def moveFiles(self):
         pass
@@ -47,20 +49,15 @@ class Task():
         return atomsIndex
 
     def _readTail(self,folder, gauss=False):
-            tail = ""
+            end = "output.*.txt"
+            if gauss:
+                end = "*.log"
             try:
-                if gauss:
-                    folder = glob.glob(f"{folder}*.log")[0]
-                else:
-                    folder = glob.glob(f"{folder}output.*.txt")[0]
+                folder = glob.glob(f"{folder}/{end}")[0]
 
             except IndexError:
-                if gauss:
-                    print(f"File {folder}*.log not found!")
-                else:
-                    print(f"File {folder}output.*.txt not found!")
-                
-                return tail
+                print(f"File {folder}/{end} not found!")
+                return ""
             
             try:
                 with open(folder, "r") as file:
