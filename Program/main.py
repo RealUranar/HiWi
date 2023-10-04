@@ -3,7 +3,7 @@ sys.path.append("Modules/Jobs")
 sys.path.append("Modules/Tasks")
 from excel import Excel
 from job import Job
-from jobFinished import HasFinished
+from OldProgram.jobFinished import HasFinished
 from Orca_Opt import Orca_opt
 from Orca_Dihedral import Orca_Dihedral
 from Gaussian import Gaussian_opt
