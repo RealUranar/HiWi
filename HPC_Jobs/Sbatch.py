@@ -17,7 +17,7 @@ class SBatchKEywords():
 
 class JobScripts(SBatchKEywords):
         def writeGausianJob(self, name, location,
-                        inputFile = "orca.com",
+                        inputFile = "combined.com",
                         outputFormat="GAUSSIANJOB.%J",
                         time = "96:00:00",
                         cpusPerTask = 8,
