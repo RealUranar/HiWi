@@ -39,6 +39,16 @@ class Orca_opt(Task):
     def submit(self):
         return super().submit(self.newPath)
         
+    def isFinished(self):
+        hasFinished, succesfull = False, False
+        tail = self._readTail(self.newPath)
+        hasFinished = "TOTAL RUN TIME:" in tail
+        succesfull = "****ORCA TERMINATED NORMALLY****" in tail
+        if succesfull == False:
+            self.job.updateJob(Orca_opt = -1)
+        if hasFinished == False:
+            return
+        self.job.updateJob(Orca_opt = 1, Orca_Dihedral = 3)
 
 if __name__ == "__main__":
     with Excel() as scheduler:

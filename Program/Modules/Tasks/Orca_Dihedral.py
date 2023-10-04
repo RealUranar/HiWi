@@ -1,5 +1,4 @@
 import sys, os, shutil, glob
-sys.path.append("../HPC_Jobs/")
 
 from Sbatch import JobScripts
 from task import Task
@@ -51,6 +50,22 @@ class Orca_Dihedral(Task):
             super().submit(f"{self.newPath}/{subFolder}")
         return        
 
+
+    def isFinished(self):
+        def oracFinished(self):
+            hasFinished, succesfull = False, False
+            tail = self._readTail(self.newPath)
+            hasFinished = "TOTAL RUN TIME:" in tail
+            succesfull = "****ORCA TERMINATED NORMALLY****" in tail
+            return hasFinished, succesfull
+        
+        for subfolder in self.subfolders:
+            hasFinished, succesfull = oracFinished(f"{self.newPath}/{subfolder}/")
+            if succesfull == False:
+                self.job.updateJob(Orca_Dihedral = -1)
+            if hasFinished == False:
+                return
+        self.job.updateJob(Orca_Dihedral = 1, Gaussian = 3)
 
 
 if __name__ == "__main__":

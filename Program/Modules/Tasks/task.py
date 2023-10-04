@@ -1,4 +1,4 @@
-import sys
+import sys, glob
 sys.path.append("Modules/")
 from job import Job
 
@@ -16,6 +16,9 @@ class Task():
         import subprocess
         shell = subprocess.run("sbatch run_job.sh", cwd=taskFolder, shell=True)
         print(shell.stdout)
+
+    def isFinished(self):
+        pass
 
     def _findNNDihedral(self):
         from rdkit import Chem
@@ -42,3 +45,27 @@ class Task():
                 atomsIndex.insert(3, atom.GetIdx())
                 
         return atomsIndex
+
+    def _readTail(self,folder, gauss=False):
+            tail = ""
+            try:
+                if gauss:
+                    folder = glob.glob(f"{folder}*.log")[0]
+                else:
+                    folder = glob.glob(f"{folder}output.*.txt")[0]
+
+            except IndexError:
+                if gauss:
+                    print(f"File {folder}*.log not found!")
+                else:
+                    print(f"File {folder}output.*.txt not found!")
+                
+                return tail
+            
+            try:
+                with open(folder, "r") as file:
+                    tail = str(file.readlines()[-15:])
+            except:
+                with open(folder, "r", encoding = "ISO-8859-1") as file:
+                    tail = str(file.readlines()[-15:])
+            return tail

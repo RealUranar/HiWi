@@ -106,6 +106,18 @@ class Gaussian_opt(Task):
     def submit(self):
         return super().submit(self.newPath)
         
+    def gaussian(self):
+        hasFinished, succesfull = False, True
+        tail = self._readTail(self.newPath, gauss=True)
+        hasFinished = "Normal termination of Gaussian" in tail
+        #succesfull = "****ORCA TERMINATED NORMALLY****" in str(tail)
+        if succesfull == False:
+            self.job.updateJob(Gaussian = -1)
+        if hasFinished == False:
+            return
+        self.job.updateJob(Gaussian = 1, Gromacs = 3)
+
+
 
 if __name__ == "__main__":
     with Excel() as scheduler:

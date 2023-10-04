@@ -38,6 +38,22 @@ class GromacsProd(Task):
         return super().submit(self.newPath)
         
 
+    def gromacs(self):
+        hasFinished, succesfull = False, False
+
+        tail = self._readTail(self.newPath)
+        if "Segmentation fault" in str(tail) or "DUE TO TIME LIMIT" in str(tail):
+            hasFinished = True
+        elif "Writing final coordinates." in str(tail): 
+            hasFinished = True
+            succesfull = True
+
+        if succesfull == False:
+            self.job.updateJob(Gromacs = -1)
+        if hasFinished == False:
+            return
+        self.job.updateJob(Gromacs = 1)
+
 if __name__ == "__main__":
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
