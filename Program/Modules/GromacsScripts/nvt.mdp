@@ -1,0 +1,44 @@
+title               = equilibration NVT
+define              = -DPOSRES
+; Run parameters
+integrator          = md
+nsteps              = 400000
+dt                  = 0.001
+; Output control
+nstxout             = 1000
+nstvout             = 1000
+nstenergy           = 1000
+nstlog              = 1000
+; Neighborsearching and short-range nonbonded interactions
+cutoff-scheme       = Verlet
+nstlist             = 20
+ns_type             = grid
+pbc                 = xyz
+rlist               = 0.5
+; Electrostatics
+coulombtype         = PME
+pme_order           = 4
+fourierspacing      = 0.16
+ewald_rtol          = 1e-05
+; Temperature coupling
+tcoupl              = V-rescale
+tc-grps             = system
+tau_t               = 0.1
+ref_t               = 353
+; Pressure coupling
+Pcoupl              = no
+; Velocity generation
+gen_vel             = yes
+gen_temp            = 280
+gen_seed            = -1
+; Bond parameters
+constraint_algorithm    = lincs         ; holonomic constraints
+constraints             = h-bonds       ; all bonds (even heavy atom-H bonds) constrained
+lincs_iter              = 1             ; accuracy of LINCS
+lincs_order             = 4             ; also related to accuracy
+; Simulated annealing
+annealing	= single 	    ; single sequence of points for each T-coupling group
+annealing_npoints	= 2		        ; two points - start and end temperatures
+annealing_time 	= 0 400   	    ; time frame of heating - heat over period of 500 ps
+annealing_temp	= 0 310 	   
+
