@@ -25,13 +25,14 @@ class GromacsEquill(Task):
 
 
     def submit(self):
+        print("Running equillibration.... this may take a while (;)")
         ret = subprocess.run(f"./nvt.sh",
                     capture_output = True, 
                     text = True,
                     cwd=self.newPath)
         if ret.returncode != 0:
              self.job.updateJob(GromacsEquil = -1)
-             
+
         self.job.updateJob(GromacsEquil = 1, GromacsProduction= 3)
         print(f"Gromacs equillibration returned code: {ret.returncode}")
         
