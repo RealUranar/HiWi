@@ -4,6 +4,20 @@ from task import Task
 
 
 class Amber(Task):
+    """
+    A class representing a task to run Amber simulations.
+
+    Attributes:
+    job (Job): The job to run the task for.
+    newPath (str): The path to the new directory to create for the task.
+    executionOrder (list): The order in which to execute the task's methods.
+
+    Methods:
+    moveFiles(): Creates a new directory and moves necessary files to it.
+    writeInputFile(): Writes an input file for the Amber simulation.
+    submit(): Submits the Amber simulation and updates the job status.
+    """
+
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Amber"
