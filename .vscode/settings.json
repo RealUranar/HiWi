@@ -1,7 +1,7 @@
 {
     "python.analysis.extraPaths": [
         "~/src/HiWi/Program/Modules/AmberScripts",
-        "~/src/HiWi/Program/Modules/Jobs",
+        "~/src/HiWi/Program/Modules/Misc",
         "~/src/HiWi/Program/Modules/Tasks",
         "~/src/HiWi/Program/Modules/GromacsScripts"
     ]

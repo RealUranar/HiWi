@@ -63,7 +63,7 @@ class Orca_Dihedral(Task):
             succesfull = "****ORCA TERMINATED NORMALLY****" in tail
             return hasFinished, succesfull
         
-        for subfolder in self.subfolders:
+        for subfolder in self.subFolders:
             hasFinished, succesfull = oracFinished(f"{self.newPath}/{subfolder}/")
             
             if hasFinished:
