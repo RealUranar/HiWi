@@ -36,7 +36,7 @@ class Orca_opt(Task):
             )
 
     def generateJobScript(self):
-        JobScripts().writeOrcaJob(name = self.job.name, location=self.newPath)
+        JobScripts().writeOrcaJob(name = self.job.id, location=self.newPath)
 
     def submit(self):
         self.job.updateJob(Orca_Opt = 2)

@@ -46,7 +46,7 @@ class Orca_Dihedral(Task):
 
     def generateJobScript(self):
         for subFolder in self.subFolders:
-            JobScripts().writeOrcaJob(name = self.job.name, location=f"{self.newPath}/{subFolder}")
+            JobScripts().writeOrcaJob(name = self.job.id, location=f"{self.newPath}/{subFolder}")
 
     def submit(self):
         self.job.updateJob(Orca_Dihedral = 2)
