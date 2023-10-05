@@ -109,7 +109,7 @@ class Gaussian_opt(Task,Reader):
             
         if hasFinished:
             if succesfull:
-                self.job.updateJob(Gaussian = 1, Gromacs = 3)
+                self.job.updateJob(Gaussian = 1, Amber = 3)
                 print(f"Gaussian Job {self.job.name} has finished succesfull")
             else:
                 self.job.updateJob(Gaussian = -1)

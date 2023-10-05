@@ -26,8 +26,8 @@ class Amber(Task):
                     "#tleap.in\n",
                     "source leaprc.gaff\n",
                     "#source leaprc.water.tip3p\n",
-                    "loadAmberPrep orca.prep\n",
-                    "loadamberparams orca.frcmod\n"
+                    "loadAmberPrep amber.prep\n",
+                    "loadamberparams amber.frcmod\n"
                     "SYS = loadpdb NEWPDB4x4.PDB\n",
                     "SaveAmberParm SYS System.prmtop System.inpcrd\n",
                     "quit",
