@@ -66,15 +66,22 @@ class Orca_Dihedral(Task):
         for subfolder in self.subFolders:
             hasFinished, succesfull = oracFinished(f"{self.newPath}/{subfolder}/")
             
+        allDone = True
+        for subfolder in self.subFolders:
+            hasFinished, succesfull = oracFinished(f"{self.newPath}/{subfolder}/")
+            
             if hasFinished:
                 if succesfull:
-                    self.job.updateJob(Orca_Dihedral = 1, Gaussian = 3)
                     print(f"Orca dihedral Job {self.job.name}/{subfolder} has finished succesfull")
                 else:
                     self.job.updateJob(Orca_Dihedral = -1)
+                    allDone = False
                     print(f"Gromacs Job {self.job.name}/{subfolder} run into a problem")
             else:
+                allDone = False
                 print(f"Orca dihedral Job {self.job.name}/{subfolder} is still running")
+        if allDone:
+            self.job.updateJob(Orca_Dihedral = 1, Gaussian = 3)
         
 
 
