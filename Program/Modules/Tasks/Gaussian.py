@@ -114,7 +114,8 @@ class Gaussian_opt(Task,Reader):
             else:
                 self.job.updateJob(Gaussian = -1)
                 print(f"Gaussian Job {self.job.name} run into a problem")
-        print(f"Gaussian Job {self.job.name} is still running")
+        else:
+            print(f"Gaussian Job {self.job.name} is still running")
 
     def _setupMolecule(self):
         inputVars = self.readInputFile(f"{self.job.location}Input")

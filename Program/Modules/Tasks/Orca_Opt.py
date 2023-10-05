@@ -54,7 +54,8 @@ class Orca_opt(Task):
             else:
                 self.job.updateJob(Orca_Opt = -1)
                 print(f"Orca opt Job {self.job.name} run into a problem")
-        print(f"Orca opt Job {self.job.name} is still running")
+        else:
+            print(f"Orca opt Job {self.job.name} is still running")
 
 if __name__ == "__main__":
     from excel import Excel

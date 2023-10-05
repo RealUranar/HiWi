@@ -55,7 +55,8 @@ class GromacsProd(Task):
             else:
                 self.job.updateJob(GromacsProduction = -1)
                 print(f"Gromacs Job {self.job.name} run into a problem")
-        print(f"Gromacs Job {self.job.name} is still running")
+        else:
+            print(f"Gromacs Job {self.job.name} is still running")
 
 
 if __name__ == "__main__":

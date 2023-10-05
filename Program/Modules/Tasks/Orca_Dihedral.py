@@ -73,7 +73,8 @@ class Orca_Dihedral(Task):
                 else:
                     self.job.updateJob(Orca_Dihedral = -1)
                     print(f"Gromacs Job {self.job.name} run into a problem")
-            print(f"Orca dihedral Job {self.job.name} is still running")
+            else:
+                print(f"Orca dihedral Job {self.job.name} is still running")
         
 
 
