@@ -1,5 +1,7 @@
-import os, shutil, glob
+import os, shutil, glob, sys
 
+sys.path.append("Modules/Misc")
+from InputFileReader import Reader
 from Sbatch import JobScripts
 from task import Task
 
@@ -57,7 +59,7 @@ class Molecule():
     
 
 
-class Gaussian_opt(Task):
+class Gaussian_opt(Task,Reader):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Gaussian"
@@ -111,13 +113,14 @@ class Gaussian_opt(Task):
                 self.job.updateJob(Gaussian = -1)
 
     def _setupMolecule(self, removeAtomNr = 22, removeAtomFragmentNr = 30, combineAt = (19,29)):
+        inputVars = self.readInputFile(f"{self.job.location}Input")
         molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
-        molecule.removeAtom( removeAtomNr)
+        molecule.removeAtom(inputVars["removeAtomNr"])
 
         fragment = Molecule(f"Modules/fragment.xyz")
-        fragment.removeAtom(removeAtomFragmentNr)
+        fragment.removeAtom(inputVars["removeAtomFragmentNr"])
 
-        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), combineAt)
+        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), (inputVars["combineAtomAt"],inputVars["combineFragmentAt"]))
         comFile = MoleculeActions.Mol2COM(combinedMolecules.getMol())
         return comFile
 
@@ -127,7 +130,7 @@ if __name__ == "__main__":
         jobs = scheduler.readJobs()
     
     task = Gaussian_opt(jobs[0])
+    task.writeInputFile()
     #task.moveFiles()
-    #task.writeInputFile()
-    task.generateJobScript()
+    #task.generateJobScript()
     #task.submit()

@@ -11,9 +11,13 @@ class Reader():
             if line == "":
                 continue
             
-            line = line.replace(" ", "").split("=")
+            key, arg = line.replace(" ", "").split("=")
+            try:
+                arg = int(arg)
+            except:
+                pass
 
-            keyWords[line[0]] = line[1]
+            keyWords[key] = arg
         
         return keyWords
 
