@@ -27,7 +27,7 @@ class JobScripts(SBatchKEywords):
                        output.writelines([
                               f"{self.head}\n\n",
                               "########## start of batch directives #######\n",
-                              f"{self.jobName}{name}\n",
+                              f"{self.jobName}ID {name}\n",
                               f"{self.outputFormat}{outputFormat}\n",
                               f"{self.time}{time}\n",
                               f"{self.cpusPerTask}{cpusPerTask}\n",
@@ -52,7 +52,7 @@ class JobScripts(SBatchKEywords):
                        output.writelines([
                                 f"{self.head}\n\n",
                                 "########## start of batch directives #######\n",
-                                f"{self.jobName}{name}\n",
+                                f"{self.jobName}ID {name}\n",
                                 f"{self.outputFormat}{outputFormat}\n",
                                 f"{self.time}{time}\n",
                                 f"{self.nodes}{nodes}\n",
@@ -82,7 +82,7 @@ class JobScripts(SBatchKEywords):
                        output.writelines([
                               f"{self.head}\n\n",
                               "########## start of batch directives #######\n",
-                              f"{self.jobName}{name}\n",
+                              f"{self.jobName}ID {name}\n",
                               f"{self.outputFormat}{outputFormat}\n",
                               f"{self.time}{time}\n",
                               f"{self.nodes}{nodes}\n",

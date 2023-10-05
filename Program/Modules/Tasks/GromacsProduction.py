@@ -34,6 +34,7 @@ class GromacsProd(Task):
                     cwd=self.newPath)
         
         self.job.updateJob(GromacsProduction = 2)
+        print(f"Submitted Gromacs job {self.name}")
         return super().submit(self.newPath)
         
         
@@ -50,10 +51,11 @@ class GromacsProd(Task):
         if hasFinished:
             if succesfull:
                 self.job.updateJob(GromacsProduction = 1)
+                print(f"Gromacs Job {self.name} has finished succesfull")
             else:
                 self.job.updateJob(GromacsProduction = -1)
-
-        
+                print(f"Gromacs Job {self.name} run into a problem")
+        print(f"Gromacs Job {self.name} is still running")
 
 
 if __name__ == "__main__":

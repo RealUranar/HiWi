@@ -94,10 +94,11 @@ class Gaussian_opt(Task,Reader):
                     ])
 
     def generateJobScript(self):
-        JobScripts().writeGausianJob(name = self.job.name, location=self.newPath)
+        JobScripts().writeGausianJob(name = self.job.id, location=self.newPath)
 
     def submit(self):
         self.job.updateJob(Gaussian = 2)
+        print(f"Submitted Gaussian job {self.name}")
         return super().submit(self.newPath)
         
     def isFinished(self):
@@ -109,10 +110,13 @@ class Gaussian_opt(Task,Reader):
         if hasFinished:
             if succesfull:
                 self.job.updateJob(Gaussian = 1, Gromacs = 3)
+                print(f"Gaussian Job {self.name} has finished succesfull")
             else:
                 self.job.updateJob(Gaussian = -1)
+                print(f"Gaussian Job {self.name} run into a problem")
+        print(f"Gaussian Job {self.name} is still running")
 
-    def _setupMolecule(self, removeAtomNr = 22, removeAtomFragmentNr = 30, combineAt = (19,29)):
+    def _setupMolecule(self):
         inputVars = self.readInputFile(f"{self.job.location}Input")
         molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
         molecule.removeAtom(inputVars["removeAtomNr"])
