@@ -29,10 +29,11 @@ class GromacsProd(Task):
 
 
     def submit(self):
-        subprocess.run(f"./prod.sh",
+        ret = subprocess.run(f"./prod.sh",
+                    capture_output = True,
                     text = True,
                     cwd=self.newPath)
-        
+        print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
         self.job.updateJob(GromacsProduction = 2)
         print(f"Submitted Gromacs job {self.job.name}")
         return super().submit(self.newPath)
