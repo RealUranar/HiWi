@@ -25,7 +25,7 @@ class GromacsProd(Task):
             "gmx grompp -f prod.mdp -c nvt.gro -r nvt.gro -p System.top -o prod.tpr\n",
             ])
         os.chmod(f"{self.newPath}/prod.sh", 0o755)
-        JobScripts().writeGausianJob(name = self.job.id, location=self.newPath)
+        JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath)
 
 
     def submit(self):
