@@ -50,11 +50,11 @@ class Orca_opt(Task):
         if hasFinished == True:
             if succesfull == True:
                 self.job.updateJob(Orca_Opt = 1, Orca_Dihedral = 3)
-                print(f"Orca opt Job {self.name} has finished succesfull")
+                print(f"Orca opt Job {self.job.name} has finished succesfull")
             else:
                 self.job.updateJob(Orca_Opt = -1)
-                print(f"Orca opt Job {self.name} run into a problem")
-        print(f"Orca opt Job {self.name} is still running")
+                print(f"Orca opt Job {self.job.name} run into a problem")
+        print(f"Orca opt Job {self.job.name} is still running")
 
 if __name__ == "__main__":
     from excel import Excel

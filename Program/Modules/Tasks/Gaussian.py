@@ -98,7 +98,7 @@ class Gaussian_opt(Task,Reader):
 
     def submit(self):
         self.job.updateJob(Gaussian = 2)
-        print(f"Submitted Gaussian job {self.name}")
+        print(f"Submitted Gaussian job {self.job.name}")
         return super().submit(self.newPath)
         
     def isFinished(self):
@@ -110,11 +110,11 @@ class Gaussian_opt(Task,Reader):
         if hasFinished:
             if succesfull:
                 self.job.updateJob(Gaussian = 1, Gromacs = 3)
-                print(f"Gaussian Job {self.name} has finished succesfull")
+                print(f"Gaussian Job {self.job.name} has finished succesfull")
             else:
                 self.job.updateJob(Gaussian = -1)
-                print(f"Gaussian Job {self.name} run into a problem")
-        print(f"Gaussian Job {self.name} is still running")
+                print(f"Gaussian Job {self.job.name} run into a problem")
+        print(f"Gaussian Job {self.job.name} is still running")
 
     def _setupMolecule(self):
         inputVars = self.readInputFile(f"{self.job.location}Input")
