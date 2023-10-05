@@ -56,9 +56,9 @@ class Orca_Dihedral(Task):
 
 
     def isFinished(self):
-        def oracFinished(self):
+        def oracFinished(path):
             hasFinished, succesfull = False, False
-            tail = self._readTail(self.newPath)
+            tail = self._readTail(path)
             hasFinished = "TOTAL RUN TIME:" in tail
             succesfull = "****ORCA TERMINATED NORMALLY****" in tail
             return hasFinished, succesfull
