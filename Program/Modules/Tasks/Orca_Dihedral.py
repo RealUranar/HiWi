@@ -69,12 +69,12 @@ class Orca_Dihedral(Task):
             if hasFinished:
                 if succesfull:
                     self.job.updateJob(Orca_Dihedral = 1, Gaussian = 3)
-                    print(f"Orca dihedral Job {self.job.name} has finished succesfull")
+                    print(f"Orca dihedral Job {self.job.name}/{subfolder} has finished succesfull")
                 else:
                     self.job.updateJob(Orca_Dihedral = -1)
-                    print(f"Gromacs Job {self.job.name} run into a problem")
+                    print(f"Gromacs Job {self.job.name}/{subfolder} run into a problem")
             else:
-                print(f"Orca dihedral Job {self.job.name} is still running")
+                print(f"Orca dihedral Job {self.job.name}/{subfolder} is still running")
         
 
 
