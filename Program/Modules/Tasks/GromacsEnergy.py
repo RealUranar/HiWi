@@ -51,6 +51,7 @@ class GromacsEnergy(Task):
 
         old = np.array(lines[-1].split(), dtype=float)
         new = old * np.array([2,0.90,0.90])
+        new = np.array([x if x>2.15 else 2.15 for x in new])  #THIS IS A HACK TO MAKE GROMACS HAPPY!!! CHANGE THIS!!!
         lines[-1] = f"   {new[0]:.5f}   {new[1]:.5f}   {new[2]:.5f}\n"
 
         with open(f"{self.newPath}/System.gro", "w") as file:
@@ -76,8 +77,8 @@ class GromacsEnergy(Task):
         
         if ret.returncode != 0:
              self.job.updateJob(GromacsEnergy = -1)
-             
-        self.job.updateJob(GromacsEnergy= 1, GromacsEquil= 3)
+        else: 
+            self.job.updateJob(GromacsEnergy= 1, GromacsEquil= 3)
         print(f"Gromacs energy minimization returned code: {ret.returncode}")
         
     def _getEnergys(self):
