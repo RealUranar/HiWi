@@ -32,7 +32,6 @@ class GromacsEnergy(Task):
         self._changeTOPFile()
         self._writePosRe()
         shutil.copy("Modules/GromacsScripts/em.mdp", f"{self.newPath}")
-        shutil.copy("Modules/GromacsScripts/table_fourier.itp", f"{self.newPath}")
 
     def generateJobScript(self):
         with open(f"{self.newPath}/em.sh","w") as file:
