@@ -1,4 +1,4 @@
-import os, shutil, glob
+import os, shutil, glob, sys
 import subprocess
 from task import Task
 
@@ -28,35 +28,11 @@ class GromacsEnergy(Task):
 
     def writeInputFile(self):
         self._getEnergys()
+        self._changeGROFile()
+        self._changeTOPFile()
+        self._writePosRe()
         shutil.copy("Modules/GromacsScripts/em.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/table_fourier.itp", f"{self.newPath}")
-        shutil.copy("Modules/GromacsScripts/posre.itp", f"{self.newPath}")
-
-        with open(f"{self.newPath}/System.top", "r") as file:
-            lines = file.readlines()
-
-        temp = []
-        for i, line in enumerate(lines):
-            if "[ bonds ]" in line:
-                temp.insert(i-1, '\n#ifdef POSRES\n#include "posre.itp"\n#endif\n')
-            elif "[ system ]" in line:
-                temp.insert(i, '\n#include "table_fourier.itp"\n')
-            temp.append(line)
-
-        with open(f"{self.newPath}/System.top", "w") as file:
-            file.writelines(temp)
-
-        with open(f"{self.newPath}/System.gro", "r") as file:
-            lines = file.readlines()
-
-        old = np.array(lines[-1].split(), dtype=float)
-        new = old * np.array([2,0.90,0.90])
-        new = np.array([x if x>2.15 else 2.15 for x in new])  #THIS IS A HACK TO MAKE GROMACS HAPPY!!! CHANGE THIS!!!
-        lines[-1] = f"   {new[0]:.5f}   {new[1]:.5f}   {new[2]:.5f}\n"
-
-        with open(f"{self.newPath}/System.gro", "w") as file:
-            file.writelines(lines)
-
 
     def generateJobScript(self):
         with open(f"{self.newPath}/em.sh","w") as file:
@@ -81,6 +57,64 @@ class GromacsEnergy(Task):
             self.job.updateJob(GromacsEnergy= 1, GromacsEquil= 3)
         print(f"Gromacs energy minimization returned code: {ret.returncode}")
         
+    def _writeTableFourier(self):
+        dihedral = self._findNNDihedral(xyzFile="Orca_Opt/orca.xyz")
+        with open(f"{self.newPath}/table_fourier.itp", "w") as file:
+            file.writelines([
+                "; ai    aj    ak    al  funct   n   k\n",
+                f"{dihedral[0]+1}   {dihedral[1]+1}   {dihedral[2]+1}   {dihedral[3]+1}       8       0   1   \n"
+            ])
+#         
+
+
+    def _writePosRe(self):
+        sys.path.append("Modules/Misc")
+        from InputFileReader import Reader
+
+        with open(f"{self.job.location}Orca_Opt/orca.xyz", "r") as file:
+            atomsInStartAtom = int(file.readline())
+        
+        input = Reader.readInputFile(f"{self.job.location}Input")
+        freezeAtoms = input["freezeFragmentAt"] + atomsInStartAtom #calculate the Atoms to freeze in the combined molecule
+
+        with open(f"{self.newPath}/posre.itp", "w") as file:
+            file.writelines([
+                "[ position_restraints ]\n",
+                "; atom  type      fx      fy      fz\n"])
+            for atom in freezeAtoms:
+                file.writelines([
+                    f"{atom}      1       1000000    1000000    1000000\n"
+                ])
+
+    
+    def _changeTOPFile(self):
+        with open(f"{self.newPath}/System.top", "r") as file:
+            lines = file.readlines()
+
+        temp = []
+        for i, line in enumerate(lines):
+            if "[ bonds ]" in line:
+                temp.insert(i-1, '\n#ifdef POSRES\n#include "posre.itp"\n#endif\n')
+            elif "[ system ]" in line:
+                temp.insert(i, '\n#include "table_fourier.itp"\n')
+            temp.append(line)
+
+        with open(f"{self.newPath}/System.top", "w") as file:
+            file.writelines(temp)
+
+    def _changeGROFile(self):
+        with open(f"{self.newPath}/System.gro", "r") as file:
+            lines = file.readlines()
+
+        old = np.array(lines[-1].split(), dtype=float)
+        new = old * np.array([2,0.90,0.90])
+        new = np.array([x if x>2.15 else 2.15 for x in new])  #THIS IS A HACK TO MAKE GROMACS HAPPY!!! CHANGE THIS!!!
+        lines[-1] = f"   {new[0]:.5f}   {new[1]:.5f}   {new[2]:.5f}\n"
+
+        with open(f"{self.newPath}/System.gro", "w") as file:
+            file.writelines(lines)
+
+
     def _getEnergys(self):
         from scipy.interpolate import CubicSpline
         energyFiles = []
@@ -114,12 +148,15 @@ class GromacsEnergy(Task):
         np.savetxt(f"{self.newPath}/table_d0.xvg", np.column_stack((phi_ges, E_ges, y_minus)), fmt="%12.8f\t %12.8f\t %12.8f")
 
 if __name__ == "__main__":
+    sys.path.append("Modules/Misc")
     from excel import Excel
     with Excel() as scheduler:
         jobs = scheduler.readJobs()
     
-    task = Gromacs(jobs[0])
+    task = GromacsEnergy(jobs[0])
+    task._writePosRe()
+    task._writeTableFourier()
     #task.moveFiles()
-    task.writeInputFile()
+    #task.writeInputFile()
     #task.generateJobScript()
     # task.submit()

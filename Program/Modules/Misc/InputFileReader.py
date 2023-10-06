@@ -1,5 +1,7 @@
+import numpy as np
 class Reader():
-    def readInputFile(self, fileName):
+    @staticmethod
+    def readInputFile(fileName):
         with open(fileName) as file:
             content = file.read()
 
@@ -16,6 +18,8 @@ class Reader():
                 arg = int(arg)
             except:
                 pass
+            if key == "freezeFragmentAt":
+                arg = np.array(arg.split(","), dtype=int)
 
             keyWords[key] = arg
         

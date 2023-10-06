@@ -22,10 +22,10 @@ class Task():
     def isFinished(self):
         pass
 
-    def _findNNDihedral(self):
+    def _findNNDihedral(self, xyzFile = "Orca_Opt/startMolecule.xyz"):
         from rdkit import Chem
         from rdkit.Chem.rdDetermineBonds import DetermineBonds
-        mol = Chem.MolFromXYZFile(f"{self.job.location}Orca_Opt/startMolecule.xyz")
+        mol = Chem.MolFromXYZFile(f"{self.job.location}{xyzFile}")
         DetermineBonds(mol,charge = 0)
 
         for bond in mol.GetBonds():  #Find the correct Bond between two N=N
