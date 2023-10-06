@@ -51,7 +51,7 @@ class GromacsEnergy(Task):
 
         old = np.array(lines[-1].split(), dtype=float)
         new = old * np.array([2,0.90,0.90])
-        lines[-1] = f"   {new[0]:.5f}   {new[1]:.5f}   {new[2]:.5f}"
+        lines[-1] = f"   {new[0]:.5f}   {new[1]:.5f}   {new[2]:.5f}\n"
 
         with open(f"{self.newPath}/System.gro", "w") as file:
             file.writelines(lines)
