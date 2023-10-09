@@ -19,7 +19,7 @@ class GromacsEnergy(Task):
             groFilePath = glob.glob(f"{self.job.location}Amber/*.gro")[0]
             topFilePath = glob.glob(f"{self.job.location}Amber/*.top")[0]
         except IndexError:
-            print("gro/top-File not Found")
+            print(f"gro/top-File not Found for Job {self.job.name}")
             return
 
         shutil.copy(groFilePath, f"{self.newPath}/System.gro")
@@ -27,10 +27,11 @@ class GromacsEnergy(Task):
 
 
     def writeInputFile(self):
-        self._getEnergys()
+        #self._getEnergys()
         self._changeGROFile()
         self._changeTOPFile()
         self._writePosRe()
+        self._writeTableFourier()
         shutil.copy("Modules/GromacsScripts/em.mdp", f"{self.newPath}")
 
     def generateJobScript(self):
@@ -57,11 +58,11 @@ class GromacsEnergy(Task):
         print(f"Gromacs energy minimization returned code: {ret.returncode}")
         
     def _writeTableFourier(self):
-        dihedral = self._findNNDihedral(xyzFile="Orca_Opt/orca.xyz")
+        dihedral = self._findNNDihedral(xyzFile="Orca_Opt/orca.xyz")[0]
         with open(f"{self.newPath}/table_fourier.itp", "w") as file:
             file.writelines([
                 "; ai    aj    ak    al  funct   n   k\n",
-                f"{dihedral[0]+1}   {dihedral[1]+1}   {dihedral[2]+1}   {dihedral[3]+1}       8       0   1   \n"
+                f"{dihedral[0]}   {dihedral[1]}   {dihedral[2]}   {dihedral[3]}       8       0   1   \n"  
             ])
 #         
 
@@ -148,14 +149,13 @@ class GromacsEnergy(Task):
 
 if __name__ == "__main__":
     sys.path.append("Modules/Misc")
-    from excel import Excel
-    with Excel() as scheduler:
-        jobs = scheduler.readJobs()
+    from job import Job
+    job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Amber":1})
     
-    task = GromacsEnergy(jobs[0])
-    task._writePosRe()
-    task._writeTableFourier()
+    task = GromacsEnergy(job)
+    # task._writePosRe()
+    # task._writeTableFourier()
     #task.moveFiles()
-    #task.writeInputFile()
+    task.writeInputFile()
     #task.generateJobScript()
     # task.submit()

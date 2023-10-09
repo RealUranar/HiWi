@@ -10,16 +10,16 @@ from rdkit.Chem.rdDetermineBonds import DetermineBonds
 from rdkit.Chem import AllChem
 
 class MoleculeActions():
-    def combineMolecules(mol1, mol2, index):  #Takes the rdkit mols and combines them
+    def combineMolecules(mol1, mol2, index:tuple[int,int]):  #Takes the rdkit mols and combines them
         """Function to combine two rdkit-mol objects at a specific point
 
         Args:
-            mol1 (_type_): rdkit structure of molecule Nr.1
-            mol2 (_type_): rdkit Structure of molecule Nr.2
-            index (_type_): A tuple with the index of the atoms to connect (eg. (12, 24)). IMPORTANT: The order has to match the order of the given Molecules
+            mol1 (_mol_): rdkit structure of molecule Nr.1
+            mol2 (_mol_): rdkit Structure of molecule Nr.2
+            index (_tuple_): A tuple with the index of the atoms to connect (eg. (12, 24)). IMPORTANT: The order has to match the order of the given Molecules
 
         Returns:
-            _type_: A New Molecule
+            _mol_: A New Molecule
         """
         combo = Chem.CombineMols(mol1, mol2)  #Combine
         edcombo = Chem.EditableMol(combo)     #Make editabel
@@ -90,7 +90,7 @@ class Gaussian_opt(Task,Reader):
                         "--Link1--\n",
                         "%Chk=F1a_ortho.chk\n",
                         "#P HF/6-31G* SCF=Tight Geom=AllCheck Guess=Read\n",
-                        "Pop=MK IOp(6/33=2, 6/41=10, 6/42=17)"
+                        "Pop=MK IOp(6/33=2, 6/41=10, 6/42=17)\n"
                     ])
 
     def generateJobScript(self):
@@ -120,21 +120,21 @@ class Gaussian_opt(Task,Reader):
     def _setupMolecule(self):
         inputVars = self.readInputFile(f"{self.job.location}Input")
         molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
-        molecule.removeAtom(inputVars["removeAtomNr"])
+        molecule.removeAtom(inputVars["removeAtomNr"]-1)
 
         fragment = Molecule(f"Modules/fragment.xyz")
-        fragment.removeAtom(inputVars["removeAtomFragmentNr"])
+        fragment.removeAtom(inputVars["removeAtomFragmentNr"]-1)  #Everywhere -1 because index starts at 0
 
-        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), (inputVars["combineAtomAt"],inputVars["combineFragmentAt"]))
+        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), (inputVars["combineAtomAt"]-1,inputVars["combineFragmentAt"]-1))
         comFile = MoleculeActions.Mol2COM(combinedMolecules.getMol())
         return comFile
 
 if __name__ == "__main__":
-    from excel import Excel
-    with Excel() as scheduler:
-        jobs = scheduler.readJobs()
+    sys.path.append("Modules/Misc")
+    from job import Job
+    job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Gaussian":1})
     
-    task = Gaussian_opt(jobs[0])
+    task = Gaussian_opt(job)
     task.writeInputFile()
     #task.moveFiles()
     #task.generateJobScript()
