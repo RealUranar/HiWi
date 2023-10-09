@@ -52,10 +52,10 @@ class Task():
                     otherBond.SetBondType(Chem.rdchem.BondType.SINGLE) ####This scares me...
 
         if inFile.endswith(".xyz"):
-            mol = Chem.MolFromXYZFile(f"{inFile}")
+            mol = Chem.MolFromXYZFile(f"{self.job.location}{inFile}")
         else:
             end = inFile.split(".")[-1]
-            data = convertFile(f"{inFile}", inFormat=end)
+            data = convertFile(f"{self.job.location}{inFile}", inFormat=end)
             mol = Chem.MolFromXYZBlock(data)  ##Convert the input file to xyz then open it
 
         try:
