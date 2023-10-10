@@ -46,7 +46,7 @@ end
 
 * xyzfile 0 1 test.xyz
 ```
-Additionally to the optimization, we lock the dihedral angle of the R-N-N-R bond at 270°. This is to simplify further calculations. We also read in the xyz-file in the same directory called test.xyz.
+Additionally to the optimization, we lock the dihedral angle of the R-N-N-R bond at 270°. This is to simplify further calculations. We also read in the xyz-file in the same directory called test.xyz. For Orca calculations the **index of atoms start at 0!**
 
 ### Performing a dihedral scan
 After the pre-optimization has concluded, we can start the dihedral scan around the R-N-N-R dihedral. To do this we set up 4 new calculations:
@@ -107,8 +107,33 @@ To get this environment up and running you can follow [THIS](http://ambermd.org/
 
 Now that you have a  working AmberTools installation your can activate it by writing `conda activate AmberTools23` in your console.
 Next we execute 2 commands:
-`antechamber -fi gout -fo prepi -c resp -i gauss.log -o orca.prep -rn F1 -at gaff2`
-`parmchk2 -i orca.prep -f prepi -o orca.frcmod`
+`antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2`
+`parmchk2 -i amber.prep -f prepi -o amber.frcmod`
 For this to work your Gaussian out file (.log) has to be in the directory you try to run this script.
 
-If everything worked you will notice that a few new files appeard. We are interested in the `NEWPDB.PDB`-file. This file contains your molecule from bevore which we have to place in a unitcell. You can apperantly do this with VMD
+If everything worked you will notice that a few new files appeard. We are interested in the `NEWPDB.PDB`-file. This file contains your molecule from bevore which we have to place in a unitcell. You can do this by using the `pbc box` command to show the cell and then defining the parameters with `pbc set {x y z} -all`. This requieres some trial and error, the full documentation can be found [HERE](http://www.ks.uiuc.edu/Research/vmd/plugins/pbctools/).
+
+Now that we have definde the unitcell, we can multiply our molecule using another AmberTools plugin. With the command `PropPDB -p SHIFTED.PDB -o NEWPDB4x4.PDB -ix 1 -iy 4 -iz 4` we create a 1x4x4 meaning 16 copys of our molecule. It is important, that there is no 2nd layer below, meaning where your chain would be.
+
+Next we run `tleap -f tleap.in` which combines some of our previously created files. The mentioned `tleap.in` looks like this:
+```
+#tleap.in
+source leaprc.gaff
+loadAmberPrep amber.prep
+loadamberparams amber.frcmod
+SYS = loadpdb NEWPDB4x4.PDB
+SaveAmberParm SYS System.prmtop System.inpcrd
+quit
+```
+
+Lastly we convert the `System.prmtop` and `System.inpcrd` files into gromacs input files using the `parmed` libary in python.
+```python
+import parmed as pmd
+
+amber = pmd.load_file('System.prmtop', 'System.inpcrd')
+
+# Save a GROMACS topology and GRO file
+amber.save('System.top')
+amber.save('System.gro'
+```
+

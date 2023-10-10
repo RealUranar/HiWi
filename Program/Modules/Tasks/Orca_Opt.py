@@ -45,7 +45,7 @@ class Orca_opt(Task):
     def isFinished(self):
         hasFinished, succesfull = False, False
         tail = self._readTail(self.newPath)
-        hasFinished = "TOTAL RUN TIME:" in tail
+        hasFinished = "TOTAL RUN TIME:" in tail or ".... aborting the run" in tail
         succesfull = "****ORCA TERMINATED NORMALLY****" in tail
         if hasFinished == True:
             if succesfull == True:
