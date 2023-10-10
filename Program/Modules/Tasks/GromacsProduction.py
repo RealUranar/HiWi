@@ -16,14 +16,20 @@ class GromacsProd(Task):
     def writeInputFile(self):
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/plumed.dat", f"{self.newPath}")
-        dihedral = self._findNNDihedral(f"Gromacs/System.gro")
-
+        
+        dihedral = self._findNNDihedral(f"Gromacs/System.gro")[6]
+        dihedralString = f"{dihedral[0]+1},{dihedral[1]+1},{dihedral[2]+1},{dihedral[3]+1}"
         with open(f"{self.newPath}/plumed.dat", "r") as file:
             lines = file.readlines()
         
-        for line in lines:
-            if "ATOMS=" in line:
-                print(line)
+        with open(f"{self.newPath}/plumed.dat", "w") as file:
+            for line in lines:
+                if "ATOMS=" in line:
+                    file.write(f"t: TORSION ATOMS={dihedralString}\n")
+                elif "ATOMS1=" in line:
+                    file.write(f"a: ALPHABETA ATOMS1={dihedralString} REFERENCE=3.14")
+                else:
+                    file.write(line)
 
     def generateJobScript(self):
         with open(f"{self.newPath}/prod.sh","w") as file:
