@@ -1,4 +1,5 @@
-import os, shutil
+import os, shutil, sys
+sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 from task import Task
 
@@ -15,7 +16,14 @@ class GromacsProd(Task):
     def writeInputFile(self):
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/plumed.dat", f"{self.newPath}")
+        dihedral = self._findNNDihedral(f"Gromacs/System.gro")
 
+        with open(f"{self.newPath}/plumed.dat", "r") as file:
+            lines = file.readlines()
+        
+        for line in lines:
+            if "ATOMS=" in line:
+                print(line)
 
     def generateJobScript(self):
         with open(f"{self.newPath}/prod.sh","w") as file:
@@ -61,11 +69,12 @@ class GromacsProd(Task):
 
 
 if __name__ == "__main__":
-    from excel import Excel
-    with Excel() as scheduler:
-        jobs = scheduler.readJobs()
-    
-    task = GromacsProd(jobs[0])
+    import sys
+    sys.path.append("Modules/Misc")
+    from job import Job
+    job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Amber":1})
+
+    task = GromacsProd(job)
     #task.moveFiles()
     task.writeInputFile()
     #task.generateJobScript()

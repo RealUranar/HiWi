@@ -58,8 +58,11 @@ class Task():
             data = convertFile(f"{self.job.location}{inFile}", inFormat=end)
             mol = Chem.MolFromXYZBlock(data)  ##Convert the input file to xyz then open it
 
+
         try:
             from rdkit.Chem.rdDetermineBonds import DetermineBonds
+            if mol.GetNumAtoms() > 100:
+                raise Exception("Too many Atoms")
             DetermineBonds(mol,charge = 0)
             dihedralIdx = list(mol.GetSubstructMatches(Chem.MolFromSmarts('cN=Nc'))) #Use RDkits inbuilt function to determine the CNNC dihedrals
         except:

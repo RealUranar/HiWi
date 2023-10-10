@@ -38,11 +38,12 @@ class GromacsEquill(Task):
         
 
 if __name__ == "__main__":
-    from excel import Excel
-    with Excel() as scheduler:
-        jobs = scheduler.readJobs()
-    
-    task = Gromacs(jobs[0])
+    import sys
+    sys.path.append("Modules/Misc")
+    from job import Job
+    job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Amber":1})
+
+    task = GromacsEquill(job)
     #task.moveFiles()
     task.writeInputFile()
     #task.generateJobScript()

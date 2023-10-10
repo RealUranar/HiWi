@@ -1,4 +1,4 @@
-import os, shutil, glob, sys
+import os, shutil, glob
 import subprocess
 from task import Task
 
@@ -148,6 +148,7 @@ class GromacsEnergy(Task):
         np.savetxt(f"{self.newPath}/table_d0.xvg", np.column_stack((phi_ges, E_ges, y_minus)), fmt="%12.8f\t %12.8f\t %12.8f")
 
 if __name__ == "__main__":
+    import sys
     sys.path.append("Modules/Misc")
     from job import Job
     job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Amber":1})
