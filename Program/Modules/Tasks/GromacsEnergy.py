@@ -27,7 +27,7 @@ class GromacsEnergy(Task):
 
 
     def writeInputFile(self):
-        #self._getEnergys()
+        self._getEnergys()
         self._changeGROFile()
         self._changeTOPFile()
         self._writePosRe()
@@ -58,7 +58,7 @@ class GromacsEnergy(Task):
         print(f"Gromacs energy minimization returned code: {ret.returncode}")
         
     def _writeTableFourier(self):
-        dihedral = self._findNNDihedral(xyzFile="Orca_Opt/orca.xyz")[0]
+        dihedral = self._findNNDihedral("Amber/System.gro")[0]
         with open(f"{self.newPath}/table_fourier.itp", "w") as file:
             file.writelines([
                 "; ai    aj    ak    al  funct   n   k\n",
@@ -68,6 +68,7 @@ class GromacsEnergy(Task):
 
 
     def _writePosRe(self):
+        import sys
         sys.path.append("Modules/Misc")
         from InputFileReader import Reader
 
