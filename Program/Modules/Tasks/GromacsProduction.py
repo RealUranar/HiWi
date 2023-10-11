@@ -54,14 +54,9 @@ class GromacsProd(Task):
         
         
     def isFinished(self):
-        hasFinished, succesfull = False, False
-
-        tail = self._readTail(self.newPath)
-        if "Segmentation fault" in str(tail) or "DUE TO TIME LIMIT" in str(tail):
-            hasFinished = True
-        elif "Writing final coordinates." in str(tail): 
-            hasFinished = True
-            succesfull = True
+        tail = self._readTail(self.newPath, file = "prod.log")
+        hasFinished = "Finished mdrun" in str(tail)
+        succesfull = "Finished mdrun" in str(tail)
 
         if hasFinished:
             if succesfull:

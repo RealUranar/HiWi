@@ -72,15 +72,12 @@ class Task():
         return dihedralIdx
 
 
-    def _readTail(self,folder, gauss=False):
-            end = "output.*.txt"
-            if gauss:
-                end = "*.log"
+    def _readTail(self,folder, file = "output.*.txt"):
             try:
-                folder = glob.glob(f"{folder}/{end}")[0]
+                folder = glob.glob(f"{folder}/{file}")[0]
 
             except IndexError:
-                print(f"File {folder}/{end} not found!")
+                print(f"File {folder}/{file} not found!")
                 return ""
             
             try:

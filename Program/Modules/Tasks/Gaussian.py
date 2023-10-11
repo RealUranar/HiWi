@@ -103,7 +103,7 @@ class Gaussian_opt(Task,Reader):
         
     def isFinished(self):
         hasFinished, succesfull = False, True
-        tail = self._readTail(self.newPath, gauss=True)
+        tail = self._readTail(self.newPath, "*.log")
         hasFinished = "Normal termination of Gaussian" in tail
         #succesfull = "****ORCA TERMINATED NORMALLY****" in str(tail)
             
