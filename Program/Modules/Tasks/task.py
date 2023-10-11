@@ -14,9 +14,9 @@ class Task():
     def writeInputFile(self):
         pass
 
-    def submit(self, taskFolder):
+    def submit(self, taskFolder, joScriptName = "run_job.sh"):
         import subprocess
-        shell = subprocess.run("sbatch run_job.sh", cwd=taskFolder, shell=True)
+        shell = subprocess.run(f"sbatch {joScriptName}", cwd=taskFolder, shell=True)
         print(shell.stdout)
 
     def isFinished(self):

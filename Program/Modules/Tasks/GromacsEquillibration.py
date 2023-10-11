@@ -1,5 +1,8 @@
-import os, shutil
+import os, shutil, sys
 from task import Task
+
+sys.path.append("Modules/Misc")
+from Sbatch import JobScripts
 import subprocess
 
 class GromacsEquill(Task):
@@ -22,6 +25,7 @@ class GromacsEquill(Task):
             "gmx mdrun -v -deffnm nvt -tableb table_d0.xvg\n"
             ])
         os.chmod(f"{self.newPath}/nvt.sh", 0o755)
+        JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed=False, jobtype="nvt")
 
 
     def submit(self):
@@ -30,12 +34,33 @@ class GromacsEquill(Task):
                     capture_output = True, 
                     text = True,
                     cwd=self.newPath)
+        print(f"Gromacs equillibration returned code: {ret.returncode}")
         if ret.returncode != 0:
              self.job.updateJob(GromacsEquil = -1)
         else:
-            self.job.updateJob(GromacsEquil = 1, GromacsProduction= 3)
-        print(f"Gromacs equillibration returned code: {ret.returncode}")
+            self.job.updateJob(GromacsEquil = 2)
+            print(f"Submitted Gromacs Equillibration job {self.job.name}")
+            return super().submit(self.newPath)
         
+    def isFinished(self):
+        hasFinished, succesfull = False, False
+
+        tail = self._readTail(self.newPath)
+        if "Segmentation fault" in str(tail) or "DUE TO TIME LIMIT" in str(tail):
+            hasFinished = True
+        elif "Writing final coordinates." in str(tail): 
+            hasFinished = True
+            succesfull = True
+
+        if hasFinished:
+            if succesfull:
+                self.job.updateJob(GromacsEquil = 1, GromacsProduction= 3)
+                print(f"Gromacs Job {self.job.name} has finished succesfull")
+            else:
+                self.job.updateJob(GromacsEquil = -1)
+                print(f"Gromacs Job {self.job.name} run into a problem")
+        else:
+            print(f"Gromacs Job {self.job.name} is still running")
 
 if __name__ == "__main__":
     import sys

@@ -49,7 +49,7 @@ class GromacsProd(Task):
                     cwd=self.newPath)
         print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
         self.job.updateJob(GromacsProduction = 2)
-        print(f"Submitted Gromacs job {self.job.name}")
+        print(f"Submitted Gromacs Production job {self.job.name}")
         return super().submit(self.newPath)
         
         
