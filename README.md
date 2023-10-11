@@ -100,7 +100,12 @@ gauss.com
 ```
 Diffent than in Orca we do not need a dedicated input file, all the instructions as well as the coordinates are provided in a .com file like above.
 
-### Using Amber to prepare the Gromacs calcualtion
+### Preparing the Gromacs calcualtion
+The preperation comes in two parts. Firstly the generation of the requiered force field from the gaussian calculation. And secondly the generation of the torsion potential from the CNNC-dihedral.
+- [Generation of input files using Amber](#using-amber-to-generate-input-files)
+- [Generation of torsion potential](#generation-of-torsion-potential)
+
+#### Using Amber to generate input files
 We will use AmberTools to prepare our input files for the Gromacs calculation.
 If you do not have a AmberTools installation we will use one provided via a conda package.
 To get this environment up and running you can follow [THIS](http://ambermd.org/GetAmber.php) instruction.
@@ -109,9 +114,11 @@ Now that you have a  working AmberTools installation your can activate it by wri
 Next we execute 2 commands:
 `antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2`
 `parmchk2 -i amber.prep -f prepi -o amber.frcmod`
-For this to work your Gaussian out file (.log) has to be in the directory you try to run this script.
+For this to work your Gaussian out file (here gauss.log) has to be in the directory you try to run this script.
 
-If everything worked you will notice that a few new files appeard. We are interested in the `NEWPDB.PDB`-file. This file contains your molecule from bevore which we have to place in a unitcell. You can do this by using the `pbc box` command to show the cell and then defining the parameters with `pbc set {x y z} -all`. This requieres some trial and error, the full documentation can be found [HERE](http://www.ks.uiuc.edu/Research/vmd/plugins/pbctools/).
+If everything worked you will notice that a few new files appeard. We are interested in the `NEWPDB.PDB`-file. This file contains your molecule from bevore which we have to place in a unitcell. You can do this by using the `pbc box` command to show the cell and then defining the parameters with `pbc set {x y z} -all`. This requieres some trial and error, the full documentation can be found [HERE](http://www.ks.uiuc.edu/Research/vmd/plugins/pbctools/). The final box should enclose the molecule tighly on two sides and leave room to one side.
+
+
 
 Now that we have definde the unitcell, we can multiply our molecule using another AmberTools plugin. With the command `PropPDB -p SHIFTED.PDB -o NEWPDB4x4.PDB -ix 1 -iy 4 -iz 4` we create a 1x4x4 meaning 16 copys of our molecule. It is important, that there is no 2nd layer below, meaning where your chain would be.
 
@@ -126,7 +133,7 @@ SaveAmberParm SYS System.prmtop System.inpcrd
 quit
 ```
 
-Lastly we convert the `System.prmtop` and `System.inpcrd` files into gromacs input files using the `parmed` libary in python.
+Lastly we convert the `System.prmtop` and `System.inpcrd` files into gromacs input files (.gro and .top) using the `parmed` libary in python.
 ```python
 import parmed as pmd
 
@@ -134,6 +141,7 @@ amber = pmd.load_file('System.prmtop', 'System.inpcrd')
 
 # Save a GROMACS topology and GRO file
 amber.save('System.top')
-amber.save('System.gro'
+amber.save('System.gro')
 ```
 
+#### Generation of torsion potential

@@ -21,8 +21,7 @@ class GromacsEquill(Task):
             file.writelines([
             "#!/usr/local_rwth/bin/zsh\n",
             "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
-            "gmx grompp -f nvt.mdp -c em.gro -p System.top -r em.gro -o nvt.tpr\n",
-            "gmx mdrun -v -deffnm nvt -tableb table_d0.xvg\n"
+            "gmx grompp -f nvt.mdp -c em.gro -p System.top -r em.gro -o nvt.tpr",
             ])
         os.chmod(f"{self.newPath}/nvt.sh", 0o755)
         JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed=False, jobtype="nvt")

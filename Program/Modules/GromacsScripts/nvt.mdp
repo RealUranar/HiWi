@@ -2,8 +2,8 @@ title               = equilibration NVT
 define              = -DPOSRES
 ; Run parameters
 integrator          = md
-nsteps              = 400000
-dt                  = 0.001
+nsteps              = 400000   ; 400000 * 0.001 = 400 ps
+dt                  = 0.001    ; 1 fs    (dt=1 == 1 ps)
 ; Output control
 nstxout             = 1000
 nstvout             = 1000
@@ -14,7 +14,7 @@ cutoff-scheme       = Verlet
 nstlist             = 20
 ns_type             = grid
 pbc                 = xyz
-rlist               = 0.5
+rlist               = 0.5                 ;[nm] Cut-off distance for the short-range neighbor list.
 ; Electrostatics
 coulombtype         = PME
 pme_order           = 4
@@ -23,13 +23,13 @@ ewald_rtol          = 1e-05
 ; Temperature coupling
 tcoupl              = V-rescale
 tc-grps             = system
-tau_t               = 0.1
-ref_t               = 353
+tau_t               = 0.1               ; [ps] time constant for coupling
+ref_t               = 310               ; [K] reference temperature for coupling
 ; Pressure coupling
 Pcoupl              = no
 ; Velocity generation
 gen_vel             = yes
-gen_temp            = 280
+gen_temp            = 310              ;[K] temperature for Maxwell distribution
 gen_seed            = -1
 ; Bond parameters
 constraint_algorithm    = lincs         ; holonomic constraints
@@ -37,8 +37,7 @@ constraints             = h-bonds       ; all bonds (even heavy atom-H bonds) co
 lincs_iter              = 1             ; accuracy of LINCS
 lincs_order             = 4             ; also related to accuracy
 ; Simulated annealing
-annealing	= single 	    ; single sequence of points for each T-coupling group
-annealing_npoints	= 2		        ; two points - start and end temperatures
-annealing_time 	= 0 400   	    ; time frame of heating - heat over period of 500 ps
-annealing_temp	= 0 310 	   
-
+annealing	= single 	                ; single sequence of points for each T-coupling group
+annealing_npoints	= 4		            ; two points - start and end temperatures
+annealing_time 	= 0 200 350 400   	    ; time frame of heating - heat over period of 400 ps
+annealing_temp	= 0 100 200 310 	    ; Temperatures for the annealing
