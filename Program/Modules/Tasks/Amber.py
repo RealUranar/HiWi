@@ -61,7 +61,8 @@ class Amber(Task):
             amber.save('System.gro')
 
             self.job.updateJob(Amber = 1, GromacsEnergy= 3)
-        except:
+        except Exception as e:
+            print(e)
             self.job.updateJob(Amber = -1)
             print(f"Amber Job for {self.job.name} failed!")
 
