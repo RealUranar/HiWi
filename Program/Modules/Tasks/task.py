@@ -1,6 +1,4 @@
-import sys, glob, os
-sys.path.append("Modules/")
-from job import Job
+import glob, os
 import subprocess
 
 class Task():
@@ -97,6 +95,7 @@ class Task():
             raise RuntimeError("Some AmberTools Command Failed!")
 
 if __name__ == "__main__":
+    import sys
     sys.path.append("Modules/Misc")
     from job import Job
     job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Amber":1})

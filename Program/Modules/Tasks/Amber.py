@@ -29,7 +29,6 @@ class Amber(Task):
         os.mkdir(self.newPath) # Create new SubFolders
         gaussOutFile = glob.glob(f"{self.job.location}Gaussian/*.log")[0]  #Get Path to the log file
         shutil.copy(gaussOutFile, self.newPath) #Copy log File to new directory
-        os.chmod(f"{self.newPath}/amber.sh", 0o755)
 
     def writeInputFile(self):
         with open(f"{self.newPath}/tleap.in", "w") as file:
