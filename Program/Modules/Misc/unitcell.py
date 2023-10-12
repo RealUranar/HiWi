@@ -15,7 +15,7 @@ def makeUnitcell(inName = "NEWPDB.PDB", outName = "SHIFTED.PDB", z_ySideLengh = 
         _type_: Nothing
     """
     coords = np.empty((0))
-    with open("NEWPDB.PDB", "r") as file:
+    with open(inName, "r") as file:
         for line in file.readlines()[:]:
             if not line.startswith(("HETATM", "ATOM")):
                 continue
@@ -42,8 +42,8 @@ def makeUnitcell(inName = "NEWPDB.PDB", outName = "SHIFTED.PDB", z_ySideLengh = 
     x_offset = 15
     if z_ySideLengh != None:
         cell[1], cell[2] = z_ySideLengh, z_ySideLengh  #Make the cell 6x6 in y and z direction
-    with open("NEWPDB.PDB", "r") as file:
-        with open("SHIFTED.PDB", "w") as writer:
+    with open(inName, "r") as file:
+        with open(outName, "w") as writer:
             writer.write(f"CRYST1   {math.ceil(cell[0])+x_offset}.000   {math.ceil(cell[1])}.000   {math.ceil(cell[2])}.000  90.00  90.00  90.00 P 1           1\n")
             for atomIndex ,line in enumerate(file.readlines()):
                 lineS = line.split()  
