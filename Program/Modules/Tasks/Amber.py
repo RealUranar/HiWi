@@ -56,9 +56,9 @@ class Amber(Task):
             self._runCondaScript(script="tleap -f tleap.in", taskFolder=self.newPath)
 
             # Save a GROMACS topology and GRO file
-            amber = pmd.load_file('System.prmtop', 'System.inpcrd')
-            amber.save('System.top')
-            amber.save('System.gro')
+            amber = pmd.load_file(f"{self.newPath}/System.prmtop", f"{self.newPath}/System.inpcrd")
+            amber.save(f"{self.newPath}/System.top")
+            amber.save(f"{self.newPath}/System.gro")
 
             self.job.updateJob(Amber = 1, GromacsEnergy= 3)
         except Exception as e:
