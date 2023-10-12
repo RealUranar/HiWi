@@ -51,7 +51,7 @@ class Amber(Task):
         try:
             self._runCondaScript(script="antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2", taskFolder=self.newPath)
             self._runCondaScript(script="parmchk2 -i amber.prep -f prepi -o amber.frcmod", taskFolder=self.newPath)
-            makeUnitcell()
+            makeUnitcell(inName=f"{self.newPath}/NEWPDB.PDB", outName=f"{self.newPath}/SHIFTED.PDB")
             self._runCondaScript(script="PropPDB -p SHIFTED.PDB -o NEWPDB4x4.PDB -ix 1 -iy 4 -iz 4", taskFolder=self.newPath)
             self._runCondaScript(script="tleap -f tleap.in", taskFolder=self.newPath)
 
