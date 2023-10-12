@@ -104,16 +104,18 @@ class GromacsEnergy(Task):
             file.writelines(temp)
 
     def _changeGROFile(self):
+        from convertFile import convertFile
+        from unitcell import makeUnitcell
         with open(f"{self.newPath}/System.gro", "r") as file:
-            lines = file.readlines()
+            filePDB = convertFile(file.read(), inFormat="gro", outFormat="pdb")
 
-        old = np.array(lines[-1].split(), dtype=float)
-        new = old * np.array([2,0.90,0.90])
-        new = np.array([x if x>2.15 else 2.15 for x in new])  #THIS IS A HACK TO MAKE GROMACS HAPPY!!! CHANGE THIS!!!
-        lines[-1] = f"   {new[0]:.5f}   {new[1]:.5f}   {new[2]:.5f}\n"
+        newCell = makeUnitcell(filePDB)
+        with open(f"{self.newPath}/TEST.pdb", "w") as file:
+            file.write(filePDB)
+        newCellGRO = convertFile(newCell, inFormat="pdb", outFormat="gro")
 
         with open(f"{self.newPath}/System.gro", "w") as file:
-            file.writelines(lines)
+            file.write(newCellGRO)
 
 
     def _getEnergys(self):
@@ -152,12 +154,14 @@ if __name__ == "__main__":
     import sys
     sys.path.append("Modules/Misc")
     from job import Job
-    job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Amber":1})
+    job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Amber":1})
     
     task = GromacsEnergy(job)
+    out = task._changeGROFile()
+    print(out)
     # task._writePosRe()
     # task._writeTableFourier()
     #task.moveFiles()
-    task.writeInputFile()
+    #task.writeInputFile()
     #task.generateJobScript()
     # task.submit()
