@@ -56,7 +56,7 @@ class GromacsProd(Task):
     def isFinished(self):
         tail = self._readTail(self.newPath, file = "prod.log")
         hasFinished = "Finished mdrun" in str(tail)
-        succesfull = "Finished mdrun" in str(tail)
+        succesfull = "Constraint error in algorithm" not in str(tail)
 
         if hasFinished:
             if succesfull:

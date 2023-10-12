@@ -28,7 +28,6 @@ class GromacsEquill(Task):
 
 
     def submit(self):
-        print("Running equillibration.... this may take a while (;")
         ret = subprocess.run(f"./nvt.sh",
                     capture_output = True, 
                     text = True,
