@@ -20,7 +20,7 @@ class GromacsEnergy(Task):
             topFilePath = glob.glob(f"{self.job.location}Amber/*.top")[0]
         except IndexError:
             print(f"gro/top-File not Found for Job {self.job.name}")
-            return
+            raise FileNotFoundError
 
         shutil.copy(groFilePath, f"{self.newPath}/System.gro")
         shutil.copy(topFilePath, f"{self.newPath}/System.top")

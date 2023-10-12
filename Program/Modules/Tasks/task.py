@@ -1,6 +1,7 @@
-import sys, glob
+import sys, glob, os
 sys.path.append("Modules/")
-#from job import Job
+from job import Job
+import subprocess
 
 class Task():
     def __init__(self, job):
@@ -15,7 +16,6 @@ class Task():
         pass
 
     def submit(self, taskFolder, joScriptName = "run_job.sh"):
-        import subprocess
         shell = subprocess.run(f"sbatch {joScriptName}", cwd=taskFolder, shell=True)
         print(shell.stdout)
 
@@ -88,6 +88,14 @@ class Task():
                     tail = str(file.readlines()[-15:])
             return tail
     
+    def _runCondaScript(self,script,taskFolder, environmentName = 'AmberTools23'):
+        activate_script = os.path.join("~","miniconda3", 'etc', 'profile.d', 'conda.sh')
+        command = "source " + activate_script + ' && conda activate ' + environmentName + f"&& {script}"
+        ret = subprocess.run(command, executable='/bin/bash', shell=True, capture_output=True, cwd=taskFolder)
+        if ret.returncode != 0:
+            print(ret.stdout)
+            raise RuntimeError("Some AmberTools Command Failed!")
+
 if __name__ == "__main__":
     sys.path.append("Modules/Misc")
     from job import Job
