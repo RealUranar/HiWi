@@ -76,7 +76,7 @@ class GromacsEnergy(Task):
                 "; atom  type      fx      fy      fz\n"])
             for atom in freezeAtoms:
                 file.writelines([
-                    f"{atom}      1       1000000    1000000    1000000\n"
+                    f"{atom+1}      1       1000000    1000000    1000000\n"
                 ])
 
     
