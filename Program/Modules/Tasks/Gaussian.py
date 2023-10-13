@@ -132,10 +132,10 @@ class Gaussian_opt(Task,Reader):
 if __name__ == "__main__":
     sys.path.append("Modules/Misc")
     from job import Job
-    job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Gaussian":1})
+    job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Gaussian":1})
     
     task = Gaussian_opt(job)
-    task.writeInputFile()
+    task._setupMolecule()
     #task.moveFiles()
     #task.generateJobScript()
     #task.submit()
