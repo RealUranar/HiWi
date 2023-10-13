@@ -46,12 +46,14 @@ class Task():
             mol = Chem.MolFromXYZBlock(data)  ##Convert the input file to xyz then open it
 
 
-        if mol.GetNumAtoms() > 100:
+        try:
+            if mol.GetNumAtoms() > 100:
+                raise TimeoutError("Too many atoms!")
             from rdkit.Chem.rdDetermineBonds import DetermineBonds
             DetermineBonds(mol,charge = 0)
             if smilesString == "CNNC":
                 smilesString = 'cN=Nc'
-        else:
+        except:
             from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
             DetermineConnectivity(mol,charge = 0)
             if "=" in smilesString or "#" in smilesString or "$" in smilesString:
