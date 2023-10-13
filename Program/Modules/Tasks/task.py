@@ -39,6 +39,7 @@ class Task():
                     bond.SetBondType(Chem.rdchem.BondType.DOUBLE)
 
         if inFile.endswith(".xyz"):
+            print(f"{self.job.location}{inFile}")
             mol = Chem.MolFromXYZFile(f"{self.job.location}{inFile}")
         else:
             end = inFile.split(".")[-1]
@@ -51,7 +52,7 @@ class Task():
                 raise TimeoutError("Too many atoms!")
             from rdkit.Chem.rdDetermineBonds import DetermineBonds
             DetermineBonds(mol,charge = 0)
-            if smilesString == "CNNC":
+            if smilesString == "CN=NC":
                 smilesString = 'cN=Nc'
         except:
             from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
