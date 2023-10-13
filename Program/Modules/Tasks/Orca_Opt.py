@@ -20,7 +20,7 @@ class Orca_opt(Task):
         os.remove(xyzFilePath)
 
     def writeInputFile(self):
-        dihedral = self._findNNDihedral()[0]
+        dihedral = self._findSubstring(smilesString="CN=NC")[0]
         with open(f"{self.newPath}/orca.inp","w") as file:
             
             file.writelines(

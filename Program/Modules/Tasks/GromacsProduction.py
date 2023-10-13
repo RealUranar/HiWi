@@ -17,7 +17,7 @@ class GromacsProd(Task):
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/plumed.dat", f"{self.newPath}")
         
-        dihedral = self._findNNDihedral(f"Gromacs/System.gro")[6]
+        dihedral = self._findSubstring(smilesString="CN=NC" ,inFile=f"Gromacs/System.gro")[6]
         dihedralString = f"{dihedral[0]+1},{dihedral[1]+1},{dihedral[2]+1},{dihedral[3]+1}"
         with open(f"{self.newPath}/plumed.dat", "r") as file:
             lines = file.readlines()

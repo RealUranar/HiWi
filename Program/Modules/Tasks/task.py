@@ -20,7 +20,7 @@ class Task():
     def isFinished(self):
         pass
 
-    def _findNNDihedral(self, inFile = "Orca_Opt/startMolecule.xyz") -> list:
+    def _findSubstring(self, smilesString, inFile = "Orca_Opt/startMolecule.xyz") -> list:
         from rdkit import Chem
         def convertFile(fileName, inFormat = "gro", outFormat = "xyz"): ##Function to convert a given file to xyz-Format
             with open(fileName, "r") as file:
@@ -33,21 +33,10 @@ class Task():
             obConversion.ReadString(outFile, inFile)
             return obConversion.WriteString(outFile)
 
-        def determineBondsManual(mol):
-            from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
-            DetermineConnectivity(mol,charge = 0)
-            NNBonds = []
+        def setBondsManual(mol, newBondbetween):
             for bond in mol.GetBonds():  #Find the correct Bond between two N=N
-                if bond.GetBeginAtom().GetSymbol() == "N" and bond.GetEndAtom().GetSymbol() == "N":
-                    NNBonds.append(bond)
-                
-            for NNBond in NNBonds:
-                NNBond.SetBondType(Chem.rdchem.BondType.DOUBLE)
-                a1 = NNBond.GetBeginAtom()     ####The code works even without this section... i have no idea why
-                for otherBond in a1.GetBonds():
-                    if otherBond.GetBondType() == NNBond.GetBondType():
-                        continue
-                    otherBond.SetBondType(Chem.rdchem.BondType.SINGLE) ####This scares me...
+                if bond.GetBeginAtom().GetSymbol() == newBondbetween[0] and bond.GetEndAtom().GetSymbol() == newBondbetween[1]:
+                    bond.SetBondType(Chem.rdchem.BondType.DOUBLE)
 
         if inFile.endswith(".xyz"):
             mol = Chem.MolFromXYZFile(f"{self.job.location}{inFile}")
@@ -57,17 +46,21 @@ class Task():
             mol = Chem.MolFromXYZBlock(data)  ##Convert the input file to xyz then open it
 
 
-        try:
+        if mol.GetNumAtoms() > 100:
             from rdkit.Chem.rdDetermineBonds import DetermineBonds
-            if mol.GetNumAtoms() > 100:
-                raise Exception("Too many Atoms")
             DetermineBonds(mol,charge = 0)
-            dihedralIdx = list(mol.GetSubstructMatches(Chem.MolFromSmarts('cN=Nc'))) #Use RDkits inbuilt function to determine the CNNC dihedrals
-        except:
-            determineBondsManual(mol)
-            dihedralIdx = list(mol.GetSubstructMatches(Chem.MolFromSmarts('CN=NC')))
+            if smilesString == "CNNC":
+                smilesString = 'cN=Nc'
+        else:
+            from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
+            DetermineConnectivity(mol,charge = 0)
+            if "=" in smilesString or "#" in smilesString or "$" in smilesString:
+                atoms = smilesString.split("=")
+                setBondsManual(mol, newBondbetween=(atoms[0][-1], atoms[1][0]))
+
+        subStringIdx = list(mol.GetSubstructMatches(Chem.MolFromSmarts(smilesString)))
             
-        return dihedralIdx
+        return subStringIdx
 
 
     def _readTail(self,folder, file = "output.*.txt"):
@@ -101,6 +94,6 @@ if __name__ == "__main__":
     job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Amber":1})
 
     task = Task(job)
-    hi = task._findNNDihedral(inFile="Amber/System.gro")
+    hi = task._findSubstring(inFile="Amber/System.gro")
 
 

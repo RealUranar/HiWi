@@ -58,7 +58,7 @@ class GromacsEnergy(Task):
         print(f"Gromacs energy minimization returned code: {ret.returncode}")
         
     def _writeTableFourier(self):
-        dihedral = self._findNNDihedral("Amber/System.gro")[0]
+        dihedral = self._findSubstring(smilesString="CN=NC" ,inFile="Amber/System.gro")[0]
         with open(f"{self.newPath}/table_fourier.itp", "w") as file:
             file.writelines([
                 "; ai    aj    ak    al  funct   n   k\n",
@@ -68,15 +68,7 @@ class GromacsEnergy(Task):
 
 
     def _writePosRe(self):
-        import sys
-        sys.path.append("Modules/Misc")
-        from InputFileReader import Reader
-
-        with open(f"{self.job.location}Orca_Opt/orca.xyz", "r") as file:
-            atomsInStartAtom = int(file.readline())
-        
-        input = Reader.readInputFile(f"{self.job.location}Input")
-        freezeAtoms = input["freezeFragmentAt"] + atomsInStartAtom #calculate the Atoms to freeze in the combined molecule
+        freezeAtoms = self._findSubstring(smilesString="CSC" ,inFile="Amber/System.gro")[0]
 
         with open(f"{self.newPath}/posre.itp", "w") as file:
             file.writelines([
@@ -110,8 +102,6 @@ class GromacsEnergy(Task):
             filePDB = convertFile(file.read(), inFormat="gro", outFormat="pdb")
 
         newCell = makeUnitcell(filePDB)
-        with open(f"{self.newPath}/TEST.pdb", "w") as file:
-            file.write(filePDB)
         newCellGRO = convertFile(newCell, inFormat="pdb", outFormat="gro")
 
         with open(f"{self.newPath}/System.gro", "w") as file:
