@@ -46,7 +46,7 @@ class Task():
             mol = Chem.MolFromXYZBlock(data)  ##Convert the input file to xyz then open it
 
 
-        try:
+        try:  #Here try/except is nessecary, because Determine bonds does not like my 4x4 cell
             if mol.GetNumAtoms() > 100:
                 raise TimeoutError("Too many atoms!")
             from rdkit.Chem.rdDetermineBonds import DetermineBonds
