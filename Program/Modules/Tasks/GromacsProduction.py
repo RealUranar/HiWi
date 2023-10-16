@@ -2,6 +2,7 @@ import os, shutil, sys
 sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 from task import Task
+import numpy as np
 
 import subprocess
 
@@ -14,6 +15,8 @@ class GromacsProd(Task):
                                self.submit]
 
     def writeInputFile(self):
+        self._getEnergys()
+        self._writeTableFourier()
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/plumed.dat", f"{self.newPath}")
         
@@ -68,6 +71,59 @@ class GromacsProd(Task):
         else:
             print(f"Gromacs Job {self.job.name} is still running")
 
+
+    def _writeTableFourier(self):
+        dihedral = self._findSubstring(smilesString="CN=NC" ,inFile="Amber/System.gro")[0]
+        with open(f"{self.newPath}/table_fourier.itp", "w") as file:
+            file.writelines([
+                "; ai    aj    ak    al  funct   n   k\n",
+                f"{dihedral[0]+1}   {dihedral[1]+1}   {dihedral[2]+1}   {dihedral[3]+1}       8       0   1   \n"  
+            ])
+
+    def _changeTOPFile(self):
+        with open(f"{self.newPath}/System.top", "r") as file:
+            lines = file.readlines()
+
+        temp = []
+        for i, line in enumerate(lines):
+            if "[ system ]" in line:
+                temp.insert(i, '\n#include "table_fourier.itp"\n')
+            temp.append(line)
+
+        with open(f"{self.newPath}/System.top", "w") as file:
+            file.writelines(temp)
+
+    def _getEnergys(self):
+            from scipy.interpolate import CubicSpline
+            energyFiles = []
+            subfolders = ["singlet_left", "singlet_right", "triplet_left", "triplet_right"]
+            for subFolder in subfolders:
+                energyFiles.append(glob.glob(f"{self.job.location}Orca_Dihedral/{subFolder}/*relaxscanscf.dat")[0])
+
+            sing_left = np.genfromtxt(energyFiles[0])
+            sing_right = np.genfromtxt(energyFiles[1])
+            trip_left = np.genfromtxt(energyFiles[2])
+            trip_right = np.genfromtxt(energyFiles[3])
+
+            sing = np.append(sing_left[::-1].T, sing_right[1:].T, axis=1)
+            trip = np.append(trip_left[::-1].T, trip_right[1:].T, axis=1)
+
+            energy_combined = np.where(sing[1]-trip[1] < 0, sing[1], trip[1])
+            phi = sing[0]
+
+
+            phi_renormalized = phi - phi[0]
+            phi_ges = np.append(-phi_renormalized[::-1], phi_renormalized[1:])
+
+            E_normal_in_kJ = (energy_combined - energy_combined.min()) *2625.5
+            E_ges = np.append(E_normal_in_kJ, E_normal_in_kJ[-2::-1])
+
+            cs = CubicSpline(phi_ges, E_ges, bc_type='periodic')
+
+            y = CubicSpline.__call__(cs, x = phi_ges, nu=1)
+            y_minus = y[::-1]
+
+            np.savetxt(f"{self.newPath}/table_d0.xvg", np.column_stack((phi_ges, E_ges, y_minus)), fmt="%12.8f\t %12.8f\t %12.8f")
 
 if __name__ == "__main__":
     import sys

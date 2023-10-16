@@ -78,8 +78,13 @@ class JobScripts(SBatchKEywords):
                         partiton = "c18m",
                         account = "p0020506",
                         plumed = True,
+                        tableb = True,
                         jobtype = "prod"):
               
+              tabelbText = ""
+              if tableb:
+                     tabelbText ="-tableb table_d0.xvg"
+
               plumedText = ""
               if plumed:
                      plumedText = "-plumed plumed.dat"
@@ -99,7 +104,7 @@ class JobScripts(SBatchKEywords):
                             f"{self.account}{account}",
                             f"\n###### start of shell commands ######\n\n",
                             "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n\n",  # load the necessary module files
-                            f"mpirun -np 1 gmx_mpi mdrun -s {inputFile} -v -deffnm {jobtype} -ntomp 1 {plumedText} -tableb table_d0.xvg"  # execute the gaussian binary
+                            f"mpirun -np 1 gmx_mpi mdrun -s {inputFile} -v -deffnm {jobtype} -ntomp 1 {plumedText} {tabelbText}"  # execute the gaussian binary
                      ])
 
 if __name__ == "__main__":
