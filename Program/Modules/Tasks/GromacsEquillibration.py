@@ -24,7 +24,7 @@ class GromacsEquill(Task):
             "gmx grompp -f nvt.mdp -c em.gro -p System.top -r em.gro -o nvt.tpr",
             ])
         os.chmod(f"{self.newPath}/nvt.sh", 0o755)
-        JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed=False, jobtype="nvt")
+        JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed=False, jobtype="nvt", time= "0-01:00:00")
 
 
     def submit(self):

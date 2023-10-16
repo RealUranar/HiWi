@@ -19,7 +19,7 @@ class JobScripts(SBatchKEywords):
         def writeGausianJob(self, name, location,
                         inputFile = "combined.com",
                         outputFormat="GAUSSIANJOB.%J",
-                        time = "96:00:00",
+                        time = "20:00:00",
                         cpusPerTask = 8,
                         memPerCpu = "2000M"):
 
@@ -40,7 +40,7 @@ class JobScripts(SBatchKEywords):
         def writeOrcaJob(self, name, location, 
                         inputFile = "orca.inp",
                         outputFormat="output.%J.txt",
-                        time = "0-24:00:00",
+                        time = "0-12:00:00",
                         nodes = 1,
                         tasks = 16,
                         constraint = "Rocky8",
