@@ -21,7 +21,9 @@ class Orca_opt(Task):
         os.remove(xyzFilePath)
 
     def writeInputFile(self):
-        dihedral = self._findSubstring(smilesString="CN=NC")[0]
+        with open(f"{self.newPath}/startMolecule.xyz","r") as file:
+            structure = file.read()
+        dihedral = self._findSubstring(smilesString="CN=NC", inStructure=structure)[0]
         with open(f"{self.newPath}/orca.inp","w") as file:
             
             file.writelines(

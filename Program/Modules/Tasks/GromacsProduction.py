@@ -20,7 +20,9 @@ class GromacsProd(Task):
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/plumed.dat", f"{self.newPath}")
         
-        dihedral = self._findSubstring(smilesString="CN=NC" ,inFile=f"Gromacs/System.gro")[6]
+        with open(f"{self.job.location}Gromacs/System.gro","r") as file:
+            structure = file.read()
+        dihedral = self._findSubstring(smilesString="CN=NC" ,inFile=structure, inFormat="gro")[6]
         dihedralString = f"{dihedral[0]+1},{dihedral[1]+1},{dihedral[2]+1},{dihedral[3]+1}"
         with open(f"{self.newPath}/plumed.dat", "r") as file:
             lines = file.readlines()
@@ -73,7 +75,10 @@ class GromacsProd(Task):
 
 
     def _writeTableFourier(self):
-        dihedral = self._findSubstring(smilesString="CN=NC" ,inFile="Amber/System.gro")[0]
+        with open(f"{self.job.location}Amber/System.gro","r") as file:
+            structure = file.read()
+        dihedral = self._findSubstring(smilesString="CN=NC" ,inStructure=structure, inFormat="gro")[0]
+        
         with open(f"{self.newPath}/table_fourier.itp", "w") as file:
             file.writelines([
                 "; ai    aj    ak    al  funct   n   k\n",

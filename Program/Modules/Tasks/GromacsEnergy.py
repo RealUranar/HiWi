@@ -58,7 +58,9 @@ class GromacsEnergy(Task):
 
 
     def _writePosRe(self):
-        freezeAtoms = self._findSubstring(smilesString="CSC" ,inFile="Amber/System.gro")[0]
+        with open(f"{self.job.location}Amber/System.gro","r") as file:
+            structure = file.read()
+        freezeAtoms = self._findSubstring(smilesString="CSC" ,inFile=structure, inFormat="gro")[0]
 
         with open(f"{self.newPath}/posre.itp", "w") as file:
             file.writelines([

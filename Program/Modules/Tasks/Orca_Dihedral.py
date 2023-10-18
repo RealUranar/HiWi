@@ -26,7 +26,9 @@ class Orca_Dihedral(Task):
             
 
     def writeInputFile(self):
-        dihedral = " ".join(map(str,self._findSubstring(smilesString="CN=NC")[0]))
+        with open(f"{self.newPath}/startMolecule.xyz","r") as file:
+            structure = file.read()
+        dihedral = " ".join(map(str,self._findSubstring(smilesString="CN=NC", inStructure=structure)[0]))
 
         folderNr = 0
         for spin in self.spins:
