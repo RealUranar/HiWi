@@ -91,5 +91,5 @@ if __name__ == "__main__":
     task = Orca_Dihedral(jobs[0])
     #task.moveFiles()
     task.writeInputFile()
-    task.generateJobScript()
+    #task.generateJobScript()
     # task.submit()

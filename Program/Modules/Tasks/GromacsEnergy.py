@@ -38,7 +38,7 @@ class GromacsEnergy(Task):
             "#!/usr/local_rwth/bin/zsh\n",
             "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
             "gmx grompp -f em.mdp -c System.gro -p System.top -r System.gro -o em.tpr\n",
-            "gmx mdrun -v -deffnm em\n"
+            "gmx mdrun -v -deffnm em -ntmpi 1\n"
             ])
         os.chmod(f"{self.newPath}/em.sh", 0o755)
 

@@ -148,7 +148,8 @@ if __name__ == "__main__":
     job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Gaussian":1})
     
     task = Gaussian_opt(job)
-    task._setupMolecule()
+    task.writeInputFile()
+    #task._setupMolecule()
     #task.moveFiles()
     #task.generateJobScript()
     #task.submit()
