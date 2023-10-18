@@ -38,6 +38,6 @@ lincs_iter              = 1             ; accuracy of LINCS
 lincs_order             = 4             ; also related to accuracy
 ; Simulated annealing
 annealing	= single 	                ; single sequence of points for each T-coupling group
-annealing_npoints	= 4		            ; two points - start and end temperatures
-annealing_time 	= 0 200 350 400   	    ; time frame of heating - heat over period of 400 ps
-annealing_temp	= 0 100 200 310 	    ; Temperatures for the annealing
+annealing_npoints	= 2		            ; two points - start and end temperatures
+annealing_time 	= 0 400   	    ; time frame of heating - heat over period of 400 ps
+annealing_temp	= 0 310 	    ; Temperatures for the annealing
