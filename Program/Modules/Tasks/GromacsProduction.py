@@ -22,7 +22,7 @@ class GromacsProd(Task):
         
         with open(f"{self.job.location}Gromacs/System.gro","r") as file:
             structure = file.read()
-        dihedral = self._findSubstring(smilesString="CN=NC" ,inFile=structure, inFormat="gro")[6]
+        dihedral = self._findSubstring(smilesString="CN=NC" ,inStructure=structure, inFormat="gro")[6]
         dihedralString = f"{dihedral[0]+1},{dihedral[1]+1},{dihedral[2]+1},{dihedral[3]+1}"
         with open(f"{self.newPath}/plumed.dat", "r") as file:
             lines = file.readlines()
