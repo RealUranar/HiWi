@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
+        "~/src/HiWi/.venv/lib",
         "~/src/HiWi/Program/Modules/AmberScripts",
         "~/src/HiWi/Program/Modules/Misc",
         "~/src/HiWi/Program/Modules/Tasks",

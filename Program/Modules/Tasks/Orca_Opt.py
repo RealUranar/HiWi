@@ -1,4 +1,5 @@
-import os, shutil, glob
+import os, shutil, glob, sys
+sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 from task import Task
 
@@ -20,7 +21,7 @@ class Orca_opt(Task):
         os.remove(xyzFilePath)
 
     def writeInputFile(self):
-        dihedral = self._findNNDihedral()
+        dihedral = self._findSubstring(smilesString="CN=NC")[0]
         with open(f"{self.newPath}/orca.inp","w") as file:
             
             file.writelines(
@@ -43,9 +44,8 @@ class Orca_opt(Task):
         return super().submit(self.newPath)
         
     def isFinished(self):
-        hasFinished, succesfull = False, False
         tail = self._readTail(self.newPath)
-        hasFinished = "TOTAL RUN TIME:" in tail
+        hasFinished = "TOTAL RUN TIME:" in tail or ".... aborting the run" in tail
         succesfull = "****ORCA TERMINATED NORMALLY****" in tail
         if hasFinished == True:
             if succesfull == True:
@@ -58,12 +58,13 @@ class Orca_opt(Task):
             print(f"Orca opt Job {self.job.name} is still running")
 
 if __name__ == "__main__":
-    from excel import Excel
-    with Excel() as scheduler:
-        jobs = scheduler.readJobs()
+    import sys
+    sys.path.append("Modules/Misc")
+    from job import Job
+    job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Amber":1})
     
-    task = Orca_opt(jobs[0])
+    task = Orca_opt(job)
     #task.moveFiles()
     task.writeInputFile()
-    task.generateJobScript()
+    #task.generateJobScript()
     #task.submit()

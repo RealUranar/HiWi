@@ -26,7 +26,7 @@ class Orca_Dihedral(Task):
             
 
     def writeInputFile(self):
-        dihedral = " ".join(map(str,self._findNNDihedral()))
+        dihedral = " ".join(map(str,self._findSubstring(smilesString="CN=NC")[0]))
 
         folderNr = 0
         for spin in self.spins:
@@ -57,15 +57,11 @@ class Orca_Dihedral(Task):
 
     def isFinished(self):
         def oracFinished(path):
-            hasFinished, succesfull = False, False
             tail = self._readTail(path)
             hasFinished = "TOTAL RUN TIME:" in tail
             succesfull = "****ORCA TERMINATED NORMALLY****" in tail
             return hasFinished, succesfull
         
-        for subfolder in self.subFolders:
-            hasFinished, succesfull = oracFinished(f"{self.newPath}/{subfolder}/")
-            
         allDone = True
         for subfolder in self.subFolders:
             hasFinished, succesfull = oracFinished(f"{self.newPath}/{subfolder}/")

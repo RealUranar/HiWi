@@ -29,10 +29,6 @@ class Amber(Task):
         os.mkdir(self.newPath) # Create new SubFolders
         gaussOutFile = glob.glob(f"{self.job.location}Gaussian/*.log")[0]  #Get Path to the log file
         shutil.copy(gaussOutFile, self.newPath) #Copy log File to new directory
-        shutil.copy("Modules/AmberScripts/amber.sh", self.newPath)
-        shutil.copy("Modules/AmberScripts/unitcell.py", self.newPath)
-        shutil.copy("Modules/AmberScripts/convert2Gromax.py", self.newPath)
-        os.chmod(f"{self.newPath}/amber.sh", 0o755)
 
     def writeInputFile(self):
         with open(f"{self.newPath}/tleap.in", "w") as file:
@@ -48,16 +44,34 @@ class Amber(Task):
                 ])
 
     def submit(self):
+        import parmed as pmd
+        from unitcell import makeUnitcell
         self.job.updateJob(Amber = 2)
-        ret = subprocess.run(f"./amber.sh",
-                            capture_output = True, 
-	                        text = True,
-                            cwd=self.newPath)
-        if ret.returncode != 0:
-             self.job.updateJob(Amber = -1)
-             
-        self.job.updateJob(Amber = 1, GromacsEnergy= 3)
-        print(f"Amber file conversion returned code: {ret.returncode}")
+
+        try:
+            self._runCondaScript(script="antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2", taskFolder=self.newPath)
+            self._runCondaScript(script="parmchk2 -i amber.prep -f prepi -o amber.frcmod", taskFolder=self.newPath)
+            
+            with open(f"{self.newPath}/NEWPDB.PDB", "r") as file:
+                outFile = makeUnitcell(inFile=file.read(), z_ySideLengh=6)
+            with open(f"{self.newPath}/SHIFTED.PDB", "w") as file:
+                file.write(outFile)
+
+            self._runCondaScript(script="PropPDB -p SHIFTED.PDB -o NEWPDB4x4.PDB -ix 1 -iy 4 -iz 4", taskFolder=self.newPath)
+            self._runCondaScript(script="tleap -f tleap.in", taskFolder=self.newPath)
+
+            # Save a GROMACS topology and GRO file
+            amber = pmd.load_file(f"{self.newPath}/System.prmtop", f"{self.newPath}/System.inpcrd")
+            amber.save(f"{self.newPath}/System.top")
+            amber.save(f"{self.newPath}/System.gro")
+
+            self.job.updateJob(Amber = 1, GromacsEnergy= 3)
+            print(f"Amber Job for {self.job.name} succesfull!")
+        except Exception as e:
+            print(f"Amber Job Error: {e}")
+            self.job.updateJob(Amber = -1)
+            print(f"Amber Job for {self.job.name} failed!")
+
 
 
 if __name__ == "__main__":
