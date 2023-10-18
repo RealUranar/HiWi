@@ -1,5 +1,8 @@
-import glob, os
+import glob, os, sys
 import subprocess
+sys.path.append("Modules/Misc")
+from convertFile import convertFile
+from rdkit.Chem.rdchem import Mol
 
 class Task():
     def __init__(self, job):
@@ -20,32 +23,22 @@ class Task():
     def isFinished(self):
         pass
 
-    def _findSubstring(self, smilesString, inFile = "Orca_Opt/startMolecule.xyz") -> list:
+    def _findSubstring(self, smilesString: str, inStructure : str|Mol, inFormat = "xyz") -> list:
         from rdkit import Chem
-        def convertFile(fileName, inFormat = "gro", outFormat = "xyz"): ##Function to convert a given file to xyz-Format
-            with open(fileName, "r") as file:
-                inFile = file.read()
+        from rdkit.Chem.rdmolfiles import MolFromXYZBlock
+        if inFormat != "xyz":
+            inStructure = convertFile(inStructure, inFormat=inFormat, outFormat="xyz")
 
-            from openbabel import openbabel
-            obConversion = openbabel.OBConversion()
-            obConversion.SetInAndOutFormats(inFormat, outFormat)
-            outFile = openbabel.OBMol()
-            obConversion.ReadString(outFile, inFile)
-            return obConversion.WriteString(outFile)
+        if type(inStructure) == Mol:
+            import copy
+            mol = copy.deepcopy(inStructure)
+        else:
+            mol = MolFromXYZBlock(inStructure)  #Convert File to rdkit Structure
 
         def setBondsManual(mol, newBondbetween):
             for bond in mol.GetBonds():  #Find the correct Bond between two N=N
                 if bond.GetBeginAtom().GetSymbol() == newBondbetween[0] and bond.GetEndAtom().GetSymbol() == newBondbetween[1]:
                     bond.SetBondType(Chem.rdchem.BondType.DOUBLE)
-
-        if inFile.endswith(".xyz"):
-            print(f"{self.job.location}{inFile}")
-            mol = Chem.MolFromXYZFile(f"{self.job.location}{inFile}")
-        else:
-            end = inFile.split(".")[-1]
-            data = convertFile(f"{self.job.location}{inFile}", inFormat=end)
-            mol = Chem.MolFromXYZBlock(data)  ##Convert the input file to xyz then open it
-
 
         try:  #Here try/except is nessecary, because Determine bonds does not like my 4x4 cell
             if mol.GetNumAtoms() > 100:
@@ -56,7 +49,7 @@ class Task():
                 smilesString = 'cN=Nc'
         except:
             from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
-            DetermineConnectivity(mol,charge = 0)
+            DetermineConnectivity(mol,charge = 0)  #This is fine for small molecules, but does not work for big ones
             if "=" in smilesString or "#" in smilesString or "$" in smilesString:
                 atoms = smilesString.split("=")
                 setBondsManual(mol, newBondbetween=(atoms[0][-1], atoms[1][0]))
@@ -64,7 +57,6 @@ class Task():
         subStringIdx = list(mol.GetSubstructMatches(Chem.MolFromSmarts(smilesString)))
             
         return subStringIdx
-
 
     def _readTail(self,folder, file = "output.*.txt"):
             try:
@@ -94,9 +86,11 @@ if __name__ == "__main__":
     import sys
     sys.path.append("Modules/Misc")
     from job import Job
-    job = Job(name = "Test", id = 666, location="Modules/TESTING/", tasks={"Amber":1})
+    job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Amber":1})
 
     task = Task(job)
-    hi = task._findSubstring(inFile="Amber/System.gro")
+    with open(f"{task.job.location}Gaussian/orca_opt.xyz", "r") as file:
+        dihed = task._findSubstring(smilesString="CN=NC", inStructure=file.read())
+    print(dihed)
 
 

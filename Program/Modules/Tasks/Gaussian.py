@@ -7,6 +7,8 @@ from task import Task
 
 from rdkit import Chem
 from rdkit.Chem.rdDetermineBonds import DetermineBonds
+from rdkit.Chem.rdMolTransforms import SetDihedralDeg
+from rdkit.Chem.rdmolfiles import MolToXYZBlock
 from rdkit.Chem import AllChem
 
 class MoleculeActions():
@@ -27,7 +29,10 @@ class MoleculeActions():
         
         edcombo.AddBond(a1, mol1.GetNumAtoms()+ a2, order=Chem.rdchem.BondType.SINGLE)  #Combine the molecules with a bond
         combinedMol = edcombo.GetMol()  #Get the finished structure
-        AllChem.EmbedMolecule(combinedMol)  #Somewhat relax the structure to make a belivable Molecule
+
+        combinedMol.UpdatePropertyCache() #Black magic to make the structure work
+        Chem.GetSymmSSSR(combinedMol)
+
         return Molecule(combinedMol)
     
     def Mol2COM(mol): #Takes the rdkit mol and give .com file
@@ -117,15 +122,23 @@ class Gaussian_opt(Task,Reader):
         else:
             print(f"Gaussian Job {self.job.name} is still running")
 
+
     def _setupMolecule(self):
         inputVars = self.readInputFile(f"{self.job.location}Input")
+
         molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
         molecule.removeAtom(inputVars["removeAtomNr"]-1)
 
         fragment = Molecule(f"Modules/fragment.xyz")
         fragment.removeAtom(inputVars["removeAtomFragmentNr"]-1)  #Everywhere -1 because index starts at 0
+        
 
         combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), (inputVars["combineAtomAt"]-1,inputVars["combineFragmentAt"]-1))
+        AllChem.ConstrainedEmbed(combinedMolecules.mol, fragment.mol)  #Somewhat relax the structure to make a belivable Molecule
+
+        di = self._findSubstring(smilesString="CN=NC", inStructure= MolToXYZBlock(combinedMolecules.getMol()))[0]
+        SetDihedralDeg(combinedMolecules.mol.GetConformer(), di[0], di[1], di[2], di[3], 180) #Rotate the molecule to the right dihedral
+
         comFile = MoleculeActions.Mol2COM(combinedMolecules.getMol())
         return comFile
 

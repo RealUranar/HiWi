@@ -1,4 +1,4 @@
-def convertFile(inFile:str, inFormat = "gro", outFormat = "xyz"):
+def convertFile(inFile:str, inFormat = "gro", outFormat = "xyz") -> str:
     """_summary_
 
     Args:
