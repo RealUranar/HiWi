@@ -133,7 +133,7 @@ class Gaussian_opt(Task,Reader):
         fragment.removeAtom(inputVars["removeAtomFragmentNr"]-1)  #Everywhere -1 because index starts at 0
         
 
-        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), (inputVars["combineAtomAt"]-1,inputVars["combineFragmentAt"]-1))
+        combinedMolecules = MoleculeActions.combineMolecules(fragment.getMol(), molecule.getMol(), (inputVars["combineFragmentAt"]-1,inputVars["combineAtomAt"]-1))
         AllChem.ConstrainedEmbed(combinedMolecules.mol, fragment.mol)  #Somewhat relax the structure to make a belivable Molecule
 
         di = self._findSubstring(smilesString="CN=NC", inStructure= MolToXYZBlock(combinedMolecules.getMol()))[0]

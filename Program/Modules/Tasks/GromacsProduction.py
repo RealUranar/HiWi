@@ -1,4 +1,4 @@
-import os, shutil, sys
+import os, shutil, sys, glob
 sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 from task import Task
