@@ -1,14 +1,15 @@
-#Hi there
+# Hi there!
 
 ## Table of content
 
-- Steps to complete a calculation
-    1 [Build the molecule](#Building-a-Molecule) 
-    2 [Perform a orca optimization](#performing-a-optimization-with-orca)
-    3 [Adding a fragment and optimizing with Gaussian](#combining-your-molecule-with-a-fragment)
-    4 [Preparing the Gromacs calculation](#using-amber-to-prepare-the-gromacs-calcualtion)
-    5 [Perform a dihedral scan](#performing-a-dihedral-scan)
-    6 [Calculation of torsion potenial](#generation-of-torsion-potential)
+1. Steps to complete a calculation
+    1. [Build the molecule](#Building-a-Molecule) 
+    2. [Perform a orca optimization](#performing-a-optimization-with-orca)
+    3. [Adding a fragment and optimizing with Gaussian](#combining-your-molecule-with-a-fragment)
+    4. [Preparing the Gromacs calculation](#using-amber-to-prepare-the-gromacs-calcualtion)
+    5. [Perform a dihedral scan](#performing-a-dihedral-scan)
+    6. [Calculation of torsion potenial](#generation-of-torsion-potential)
+2. In Progress
 
 ##Steps to complete one calculation
 ```mermaid
@@ -24,7 +25,6 @@ graph TD;
     Gromacs_energy_minimization-->Gromacs_nvt_equillibration;
     Gromacs_nvt_equillibration-->Gromacs_production_run;
     Gromacs_production_run-->Get_energy_barrier;
-
 ```
 
 ### Building a Molecule
@@ -87,19 +87,14 @@ Next we execute 2 commands:
 For this to work your Gaussian out file (here gauss.log) has to be in the directory you try to run this script.
 
 If everything worked you will notice that a few new files appeard. We are interested in the `NEWPDB.PDB`-file. This file contains your molecule from bevore which we have to place in a unitcell. You can do this by using the `pbc set {6.0 6.0 12.0} -all` command to definine the parameters and `pbc box` to show the cell. Now you have to place the molecule inside the box. This can be archieved by pressing `8` and the just dragging the molecule around. Rotation is possible by pressing and holding `SHIFT`. It is very important, that the molecule is fairly upright in the unitcell and that the atom which wil be held in position is at the bottom. This requieres some trial and error, the full documentation can be found [HERE](http://www.ks.uiuc.edu/Research/vmd/plugins/pbctools/).
-```{toggle}
-Some hidden toggle content!
 
-![test](unitcellSingle.png)
-```
-
-<details open>
+<details>
   <summary>Click to see how it should look!</summary>
   <img src="unitcellSingle.png" alt="Italian Trulli">
 </details>     
 <br/><br/>
 Now that we have definde the unitcell, we can multiply our molecule using another AmberTools plugin. With the command `PropPDB -p SHIFTED.PDB -o NEWPDB4x4.PDB -ix 4 -iy 4 -iz 1` we create a 4x4x1 meaning 16 copys of our molecule. It is important, that there is no 2nd layer below or above, meaning where your chain would be.
-<details open>
+<details>
   <summary>Click to see how it should look!</summary>
   <img src="unitcell4x4.png" alt="Italian Trulli">
 </details>     
@@ -162,7 +157,7 @@ We once again defined our dihedral angle (atoms 23, 10, 11 and  12) and defined 
 `* xyzfile 0 1 orca_opt.xyz`
 We also read the xyz-file, depending on the multiplicity of the calculation either a 1 or 3 is written here. (1:singlet, 3:triplett)
 
-#### Generation of torsion potential
+### Generation of torsion potential
 After all the calculations have concludet we can combine the results and gain the complete potential. For every completed calculation you will gain a file called `*.relaxscanscf.dat` and `*.relaxscanact.dat` theses files contain in most cases the same information. I choose to use the `*.relaxscanscf.dat` for my calculations.
 The content of the file looks like this:
 ```
@@ -176,7 +171,10 @@ The content of the file looks like this:
 Here the left row are the angeles and the right row are the corresponding energys.
 To combine the energys and calculate the final energy we use the following python script.
 
-```
+<details>
+  <summary>Python script</summary>
+
+```python
 from scipy.interpolate import CubicSpline
 import numpy as np
 
@@ -211,4 +209,9 @@ y_minus = y[::-1]
 #save the file as "table_d0.xvg"
 np.savetxt(f"table_d0.xvg", np.column_stack((phi_ges, E_ges, y_minus)), fmt="%12.8f\t %12.8f\t %12.8f")
 ```
- 
+
+</details>
+
+
+### Gromacs
+Test test
