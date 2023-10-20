@@ -2,8 +2,6 @@ import os, shutil, glob
 import subprocess
 from task import Task
 
-import numpy as np
-
 class GromacsEnergy(Task):
     def __init__(self,job):
         super().__init__(job)
@@ -86,16 +84,13 @@ class GromacsEnergy(Task):
             file.writelines(temp)
 
     def _changeGROFile(self):
-        from convertFile import convertFile
-        from unitcell import makeUnitcell
         with open(f"{self.newPath}/System.gro", "r") as file:
-            filePDB = convertFile(file.read(), inFormat="gro", outFormat="pdb")
+            groFile = file.readlines()
 
-        newCell = makeUnitcell(filePDB)
-        newCellGRO = convertFile(newCell, inFormat="pdb", outFormat="gro")
+        groFile[-1] = "2.40000   2.40000   5.00000\n"
 
         with open(f"{self.newPath}/System.gro", "w") as file:
-            file.write(newCellGRO)
+            file.writelines(groFile)
 
 
 if __name__ == "__main__":

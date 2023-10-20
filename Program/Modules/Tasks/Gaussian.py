@@ -84,7 +84,7 @@ class Gaussian_opt(Task,Reader):
         comFile = self._setupMolecule()
         with open(f"{self.newPath}/combined.com", "w") as file:
                     file.writelines([
-                        "%Chk=F1a_ortho.chk\n",
+                        "%Chk=checkpoint.chk\n",
                         "#P RHF/6-31G* Opt",
                         "\n\nCOMMENT\n\n"])
 
@@ -93,7 +93,7 @@ class Gaussian_opt(Task,Reader):
 
                     file.writelines([
                         "--Link1--\n",
-                        "%Chk=F1a_ortho.chk\n",
+                        "%Chk=checkpoint.chk\n",
                         "#P HF/6-31G* SCF=Tight Geom=AllCheck Guess=Read\n",
                         "Pop=MK IOp(6/33=2, 6/41=10, 6/42=17)\n"
                     ])
@@ -133,7 +133,7 @@ class Gaussian_opt(Task,Reader):
         fragment.removeAtom(inputVars["removeAtomFragmentNr"]-1)  #Everywhere -1 because index starts at 0
         
 
-        combinedMolecules = MoleculeActions.combineMolecules(molecule.getMol(), fragment.getMol(), (inputVars["combineAtomAt"]-1,inputVars["combineFragmentAt"]-1))
+        combinedMolecules = MoleculeActions.combineMolecules(fragment.getMol(), molecule.getMol(), (inputVars["combineFragmentAt"]-1,inputVars["combineAtomAt"]-1))
         AllChem.ConstrainedEmbed(combinedMolecules.mol, fragment.mol)  #Somewhat relax the structure to make a belivable Molecule
 
         di = self._findSubstring(smilesString="CN=NC", inStructure= MolToXYZBlock(combinedMolecules.getMol()))[0]
