@@ -18,15 +18,15 @@ def makeUnitcell(inFile :str, z_ySideLengh = None):
     for line in inFile.split("\n"):
         if not line.startswith(("HETATM", "ATOM")):
             continue
-        coords = np.append(coords, np.array(line[32:55].split(),dtype=float))
+        coords = np.append(coords, np.array(line[31:55].split(),dtype=float))
 
     coords = coords.reshape(-1,3)
-
+    print(coords)
     def CalcUnitCell(coords):
         def ShiftOrigin(coords):
             coordsT = coords.T
             x_min, y_min, z_min = coordsT[0].min() , coordsT[1].min(), coordsT[2].min()
-
+            print(x_min, y_min, z_min)
             coordsT[0], coordsT[1], coordsT[2] = coordsT[0] + abs(x_min), coordsT[1] + abs(y_min), coordsT[2] + abs(z_min)
             return coordsT.T
         
@@ -54,7 +54,7 @@ def makeUnitcell(inFile :str, z_ySideLengh = None):
 
 
 if __name__ == "__main__":
-    with open("NEWPDB.PDB", "r") as file:
+    with open("Calculations/TESTING/Amber/NEWPDB.PDB", "r") as file:
         outFile = makeUnitcell(file.read(), z_ySideLengh=6)
-    with open("SHIFTED.PDB", "w") as file:
+    with open("Calculations/TESTING/Amber/SHIFTED.PDB", "w") as file:
         file.write(outFile)
