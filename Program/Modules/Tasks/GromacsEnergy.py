@@ -87,7 +87,7 @@ class GromacsEnergy(Task):
         with open(f"{self.newPath}/System.gro", "r") as file:
             groFile = file.readlines()
 
-        groFile[-1] = "2.40000   2.40000   5.00000\n"
+        groFile[-1] = "5.00000   2.40000   2.40000\n"
 
         with open(f"{self.newPath}/System.gro", "w") as file:
             file.writelines(groFile)
