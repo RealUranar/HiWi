@@ -89,8 +89,12 @@ if __name__ == "__main__":
     job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Amber":1})
 
     task = Task(job)
-    with open(f"{task.job.location}Gaussian/orca_opt.xyz", "r") as file:
-        dihed = task._findSubstring(smilesString="CN=NC", inStructure=file.read())
-    print(dihed)
+    # with open(f"{task.job.location}Gaussian/orca_opt.xyz", "r") as file:
+    #     dihed = task._findSubstring(smilesString="CN=NC", inStructure=file.read())
+    # print(dihed)
+    tail = task._readTail(f"{task.job.location}Gromacs", "prod.log")
+    print("Constraint error in algorithm" not in str(tail))
+
+
 
 

@@ -6,7 +6,7 @@ from Sbatch import JobScripts
 from task import Task
 
 from rdkit import Chem
-from rdkit.Chem.rdDetermineBonds import DetermineBonds
+
 from rdkit.Chem.rdMolTransforms import SetDihedralDeg
 from rdkit.Chem.rdmolfiles import MolToXYZBlock
 from rdkit.Chem import AllChem
@@ -50,7 +50,12 @@ class Molecule():
     def __init__(self, molecule):
         if type(molecule) == str:
             self.mol = Chem.MolFromXYZFile(molecule)
-            DetermineBonds(self.mol,charge = 0)
+            try:
+                from rdkit.Chem.rdDetermineBonds import DetermineBonds
+                DetermineBonds(self.mol,charge = 0)
+            except:
+                from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
+                DetermineConnectivity(self.mol,charge = 0)
         else:
             self.mol = molecule
     

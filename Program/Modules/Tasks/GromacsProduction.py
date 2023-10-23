@@ -120,7 +120,7 @@ class GromacsProd(Task):
             phi_renormalized = phi - phi[0]
             phi_ges = np.append(-phi_renormalized[::-1], phi_renormalized[1:])
 
-            E_normal_in_kJ = (energy_combined - energy_combined.min()) *2625.5
+            E_normal_in_kJ = (energy_combined - energy_combined.min()) *2625.5  ##Eh in kJ/mol umrechenen
             E_ges = np.append(E_normal_in_kJ, E_normal_in_kJ[-2::-1])
 
             cs = CubicSpline(phi_ges, E_ges, bc_type='periodic')

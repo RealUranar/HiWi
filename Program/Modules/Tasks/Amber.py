@@ -43,20 +43,12 @@ class Amber(Task):
                     "quit",
                 ])
 
-    def submit(self):
+    def isFinished(self):
+        if len(glob.glob(f"{self.newPath}/SHIFTED.PDB")) == 0:
+            return
+        
         import parmed as pmd
-        from unitcell import makeUnitcell
-        self.job.updateJob(Amber = 2)
-
         try:
-            self._runCondaScript(script="antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2", taskFolder=self.newPath)
-            self._runCondaScript(script="parmchk2 -i amber.prep -f prepi -o amber.frcmod", taskFolder=self.newPath)
-            
-            with open(f"{self.newPath}/NEWPDB.PDB", "r") as file:
-                outFile = makeUnitcell(inFile=file.read(), z_ySideLengh=6)
-            with open(f"{self.newPath}/SHIFTED.PDB", "w") as file:
-                file.write(outFile)
-
             self._runCondaScript(script="PropPDB -p SHIFTED.PDB -o NEWPDB4x4.PDB -ix 1 -iy 4 -iz 4", taskFolder=self.newPath)
             self._runCondaScript(script="tleap -f tleap.in", taskFolder=self.newPath)
 
@@ -67,6 +59,24 @@ class Amber(Task):
 
             self.job.updateJob(Amber = 1, GromacsEnergy= 3)
             print(f"Amber Job for {self.job.name} succesfull!")
+
+        except Exception as e:
+            print(f"Amber Job Error: {e}")
+            self.job.updateJob(Amber = -1)
+            print(f"Amber Job for {self.job.name} failed!")
+
+    def submit(self):
+        from unitcell import makeUnitcell
+        self.job.updateJob(Amber = 2)
+
+        try:
+            self._runCondaScript(script="antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2", taskFolder=self.newPath)
+            self._runCondaScript(script="parmchk2 -i amber.prep -f prepi -o amber.frcmod", taskFolder=self.newPath)
+            
+            with open(f"{self.newPath}/NEWPDB.PDB", "r") as file:
+                outFile = makeUnitcell(inFile=file.read(), z_ySideLengh=6)
+            with open(f"{self.newPath}/CHANGEME.PDB", "w") as file:
+                file.write(outFile)
         except Exception as e:
             print(f"Amber Job Error: {e}")
             self.job.updateJob(Amber = -1)
