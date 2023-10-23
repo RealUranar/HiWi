@@ -138,6 +138,10 @@ if __name__ == "__main__":
 
     task = GromacsProd(job)
     #task.moveFiles()
-    task.writeInputFile()
+    #task.writeInputFile()
     #task.generateJobScript()
     # task.submit()
+    with open(f"{task.job.location}Gromacs/System.gro","r") as file:
+        structure = file.read()
+    dihedral = task._findSubstring(smilesString="CN=NC" ,inStructure=structure, inFormat="gro")[0]
+    print(dihedral)

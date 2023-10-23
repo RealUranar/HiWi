@@ -55,7 +55,10 @@ class Task():
                 setBondsManual(mol, newBondbetween=(atoms[0][-1], atoms[1][0]))
 
         subStringIdx = list(mol.GetSubstructMatches(Chem.MolFromSmarts(smilesString)))
-            
+        if len(subStringIdx) > 16:
+            print("Something went very wrong when looking up the dihedral angle!!\nTHIS IS VERY BAD LOOK AT PLUMED AND table_fourier!!!!!")
+            subStringIdx = [subStringIdx[4], "NO", "NO", "NO", "NO", "NO",subStringIdx[4*6]]  #THIS IS VERY BAD 
+
         return subStringIdx
 
     def _readTail(self,folder, file = "output.*.txt"):
@@ -89,11 +92,11 @@ if __name__ == "__main__":
     job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Amber":1})
 
     task = Task(job)
-    # with open(f"{task.job.location}Gaussian/orca_opt.xyz", "r") as file:
-    #     dihed = task._findSubstring(smilesString="CN=NC", inStructure=file.read())
-    # print(dihed)
-    tail = task._readTail(f"{task.job.location}Gromacs", "prod.log")
-    print("Constraint error in algorithm" not in str(tail))
+    with open(f"{task.job.location}Gromacs/System.gro", "r") as file:
+        dihed = task._findSubstring(smilesString="CN=NC", inStructure=file.read(), inFormat="gro")
+    print(dihed)
+    # tail = task._readTail(f"{task.job.location}Gromacs", "prod.log")
+    # print("Constraint error in algorithm" not in str(tail))
 
 
 
