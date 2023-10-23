@@ -15,7 +15,7 @@
     10. [Analyzing results](#analyzing-results)
 2. In Progress
 
-##Steps to complete one calculation
+## Steps to complete one calculation
 ```mermaid
 flowchart TD
     A[Build the molecule]-->|Optimize using ORCA| B[Optimized Structure]
