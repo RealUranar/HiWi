@@ -18,7 +18,7 @@ def makeUnitcell(inFile :str, z_ySideLengh = None):
     for line in inFile.split("\n"):
         if not line.startswith(("HETATM", "ATOM")):
             continue
-        coords = np.append(coords, np.array(line[32:55].split(),dtype=float))
+        coords = np.append(coords, np.array(line[31:55].split(),dtype=float))
 
     coords = coords.reshape(-1,3)
 
