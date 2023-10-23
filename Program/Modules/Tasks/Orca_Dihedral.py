@@ -28,7 +28,7 @@ class Orca_Dihedral(Task):
     def writeInputFile(self):
         with open(f"{self.job.location}/Orca_Opt/orca.xyz","r") as file:
             structure = file.read()
-        dihedral = " ".join(map(str,self._findSubstring(smilesString="CN=NC", inStructure=structure)[0]))
+        dihedral = " ".join(map(str,self._findSubstring(smilesString="*N=N*", inStructure=structure)[0]))
 
         folderNr = 0
         for spin in self.spins:

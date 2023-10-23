@@ -12,6 +12,7 @@
     7. [Gromcas: Energy minimization](#energy-minimization)
     8. [Gromacs: NVT Equillibration](#nvt-equillibration)
     9. [Gromacs: Production](#production)
+    10. [Analyzing results](#analyzing-results)
 2. In Progress
 
 ##Steps to complete one calculation
@@ -460,3 +461,77 @@ PRINT FILE=COLVAR ARG=t,a,metad.*
 FLUSH STRIDE=1
 ```
 </details> 
+
+In this file you have to edit the following lines:
+```
+t: TORSION ATOMS=350,351,352,353
+a: ALPHABETA ATOMS1=350,351,352,353
+```
+Here you have to once again replace the numbers with the indexes of the atoms participating in the *CNNC* dihedral. The selection is somewhat arbituary, we choose a molecule which was not directly at a border to make further visualization easyer.
+This will write two files `COLVAR` and `HILLS`.
+Further information on PLUMED can be found [HERE](https://www.plumed.org/doc-v2.9/user-doc/html/_m_e_t_a_d.html).
+
+No we are ready to generate one finaly input file using:
+`gmx grompp -f prod.mdp -c nvt.gro -r nvt.gro -p System.top -o prod.tpr`
+
+And start the Job with:
+`gmx mdrun -s prod.tpr -v -deffnm prod -ntomp 1 -plumed plumed.dat -tableb table_d0.xvg`
+
+Depending on your system this might take a while, for me every run was about 12 hours, while calculating on the Cluster.
+
+### Analyzing results
+You can do two things to analyze your gromacs calculation:
+1. Generate a movie showing your structure moving around.
+2. Show specific bonds, angels, etc. during the simulation
+3. Analyze the output from plumed
+
+#### 1. Generate a movie
+You can generate a movie using the following command:
+`gmx trjconv -f  prod.xtc -s prod.tpr -o snapshots.pdb`
+If there is no `.xtc` file a `.trr` file can be used instead.
+This creates a snapshots.pdb file which can be viewed using `vmd`.
+
+#### 2. Show specific bonds
+ToDo
+
+#### 3. Analyze the plumed output
+You can analyze the `HILLS` file using:
+`plumed sum_hills --hills HILLS --outfile HILLSOUT.dat`
+The file `HILLSOUT.dat` contains three rows.
+First are the angles, then the energys and lastly the errors.
+
+To visualize the data you can use the following script:
+<details>
+  <summary><b>visualize.py</b></summary>
+
+```python
+def openHills(fileName):
+    with open(fileName) as file:
+        [file.readline() for x in range(5)]
+        data = np.fromfile(file, sep= " ", dtype=float)
+    phi, energy, error = data.reshape(-1,3).T
+    phi = (phi/np.pi)*180
+    energy = energy - energy.min()
+    return phi, energy, error
+
+def genData(fileNames:dict[str,str]):
+    for fileName in fileNames.keys():
+        data = openHills(fileName)
+        label = fileNames[fileName]
+        yield data, label
+
+fileNames= {
+    "fileName": "Label",
+}
+
+fig, ax = plt.subplots()
+ax.set_xlim(-180, 180)
+ax.set_ylim(0, 210)
+ax.set_xticks([x for x in range(-180, 181, 60)])
+for data, label in genData(fileNames):
+    ax.plot(data[0], data[1], label = label)
+ax.legend();
+```
+</details> 
+
+Just replace `fileName` with the name of the file containing your data and `label` with a label you want to give your data.

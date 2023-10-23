@@ -23,21 +23,41 @@ class Task():
     def isFinished(self):
         pass
 
-    def _findSubstring(self, smilesString: str, inStructure : str, inFormat = "xyz") -> list:
-        """_summary_
+    def _findSubstring(self, smilesString: str, inStructure : str|Mol, inFormat = "xyz") -> list:
+        from rdkit import Chem
+        from rdkit.Chem.rdmolfiles import MolFromXYZBlock
+        if inFormat != "xyz":
+            inStructure = convertFile(inStructure, inFormat=inFormat, outFormat="xyz")
 
-        Args:
-            smilesString (str): For CSC use "csc", for CNNC use "*N=N*"
-            inStructure (str): string of the stucrure you want to input
-            inFormat (str, optional): Format of the file. Defaults to "xyz".
+        if type(inStructure) == Mol:
+            import copy
+            mol = copy.deepcopy(inStructure)
+        else:
+            mol = MolFromXYZBlock(inStructure)  #Convert File to rdkit Structure
 
-        Returns:
-            list: _description_
-        """        
-        from openbabel import pybel
-        mol = pybel.readstring(inFormat, inStructure)
-        smarts = pybel.Smarts(smilesString)
-        subStringIdx = smarts.findall(mol)
+        def setBondsManual(mol, newBondbetween):
+            for bond in mol.GetBonds():  #Find the correct Bond between two N=N
+                if bond.GetBeginAtom().GetSymbol() == newBondbetween[0] and bond.GetEndAtom().GetSymbol() == newBondbetween[1]:
+                    bond.SetBondType(Chem.rdchem.BondType.DOUBLE)
+
+        try:  #Here try/except is nessecary, because Determine bonds does not like my 4x4 cell
+            if mol.GetNumAtoms() > 100:
+                raise TimeoutError("Too many atoms!")
+            from rdkit.Chem.rdDetermineBonds import DetermineBonds
+            DetermineBonds(mol,charge = 0)
+            if smilesString == "CN=NC":
+                smilesString = 'cN=Nc'
+        except:
+            from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
+            DetermineConnectivity(mol,charge = 0)  #This is fine for small molecules, but does not work for big ones
+            if "=" in smilesString or "#" in smilesString or "$" in smilesString:
+                atoms = smilesString.split("=")
+                setBondsManual(mol, newBondbetween=(atoms[0][-1], atoms[1][0]))
+
+        subStringIdx = list(mol.GetSubstructMatches(Chem.MolFromSmarts(smilesString)))
+        if len(subStringIdx) > 16:
+            print("Something went very wrong when looking up the dihedral angle!!\nTHIS IS VERY BAD LOOK AT PLUMED AND table_fourier!!!!!")
+            subStringIdx = [subStringIdx[4], "NO", "NO", "NO", "NO", "NO",subStringIdx[4*6]]  #THIS IS VERY BAD 
 
         return subStringIdx
 

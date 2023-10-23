@@ -141,7 +141,7 @@ class Gaussian_opt(Task,Reader):
         combinedMolecules = MoleculeActions.combineMolecules(fragment.getMol(), molecule.getMol(), (inputVars["combineFragmentAt"]-1,inputVars["combineAtomAt"]-1))
         AllChem.ConstrainedEmbed(combinedMolecules.mol, fragment.mol)  #Somewhat relax the structure to make a belivable Molecule
 
-        di = self._findSubstring(smilesString="CN=NC", inStructure= MolToXYZBlock(combinedMolecules.getMol()))[0]
+        di = self._findSubstring(smilesString="*N=N*", inStructure= MolToXYZBlock(combinedMolecules.getMol()))[0]
         SetDihedralDeg(combinedMolecules.mol.GetConformer(), di[0], di[1], di[2], di[3], 180) #Rotate the molecule to the right dihedral
 
         comFile = MoleculeActions.Mol2COM(combinedMolecules.getMol())
