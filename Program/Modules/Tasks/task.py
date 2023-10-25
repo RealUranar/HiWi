@@ -38,6 +38,9 @@ class Task():
         mol = pybel.readstring(inFormat, inStructure)
         smarts = pybel.Smarts(smilesString)
         subStringIdx = smarts.findall(mol)
+        if len(subStringIdx) == 0:
+            subStringIdx = pybel.Smarts("*NN*").findall(mol)
+            print(f"Could not find {smilesString} string in Structure, using '*NN*'. Make sure this still works!")
 
         return subStringIdx
 
@@ -73,8 +76,8 @@ if __name__ == "__main__":
 
     task = Task(job)
     with open(f"{task.job.location}Gromacs/System.gro", "r") as file:
-        dihed = task._findSubstring(smilesString="CN=NC", inStructure=file.read(), inFormat="gro")
-    print(dihed)
+        dihed = task._findSubstring(smilesString="*N=N*", inStructure=file.read(), inFormat="gro")
+    print(dihed, len(dihed))
     # tail = task._readTail(f"{task.job.location}Gromacs", "prod.log")
     # print("Constraint error in algorithm" not in str(tail))
 

@@ -144,6 +144,6 @@ if __name__ == "__main__":
     # task.submit()
     with open(f"{task.job.location}Gromacs/System.gro","r") as file:
         structure = file.read()
-    dihedral = task._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[0]
+    dihedral = task._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")
     print(dihedral)
     
