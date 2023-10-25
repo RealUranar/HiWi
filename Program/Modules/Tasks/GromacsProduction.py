@@ -17,6 +17,7 @@ class GromacsProd(Task):
     def writeInputFile(self):
         self._getEnergys()
         self._writeTableFourier()
+        self._changeTOPFile()
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
         shutil.copy("Modules/GromacsScripts/plumed.dat", f"{self.newPath}")
         
