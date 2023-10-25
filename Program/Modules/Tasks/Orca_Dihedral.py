@@ -28,7 +28,7 @@ class Orca_Dihedral(Task):
     def writeInputFile(self):
         with open(f"{self.job.location}/Orca_Opt/orca.xyz","r") as file:
             structure = file.read()
-        dihedral = " ".join(map(str,self._findSubstring(smilesString="*N=N*", inStructure=structure)[0]))
+        dihed = self._findSubstring(smilesString="*N=N*", inStructure=structure)[0]
 
         folderNr = 0
         for spin in self.spins:
@@ -41,7 +41,7 @@ class Orca_Dihedral(Task):
                         "nprocs 16\n",
                         "end\n\n",
                         "%geom Scan\n",
-                        f"D {dihedral} = {angle}, {self.steps}\n",
+                        f"D {dihed[0]-1} {dihed[1]-1} {dihed[2]-1} {dihed[3]-1} = {angle}, {self.steps}\n",
                         "end\nend\n\n",
                         f"* xyzfile 0 {spin} orcaOpt.xyz\n"]
                     )

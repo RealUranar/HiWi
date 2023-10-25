@@ -23,7 +23,7 @@ class Orca_opt(Task):
     def writeInputFile(self):
         with open(f"{self.newPath}/startMolecule.xyz","r") as file:
             structure = file.read()
-        dihedral = self._findSubstring(smilesString="*N=N*", inStructure=structure)[0]
+        dihed = self._findSubstring(smilesString="*N=N*", inStructure=structure)[0]
         with open(f"{self.newPath}/orca.inp","w") as file:
             
             file.writelines(
@@ -33,7 +33,7 @@ class Orca_opt(Task):
                  "end\n\n",
                  "%geom\n",
                  "Constraints\n"
-                 "{"+ f'D {" ".join(map(str, dihedral))} 270.0 C ' + "}\n",
+                 "{"+ f'D {dihed[0]-1} {dihed[1]-1} {dihed[2]-1} {dihed[3]-1} 270.0 C ' + "}\n",
                  "end\nend\n\n",
                  "* xyzfile 0 1 startMolecule.xyz\n"]
             )

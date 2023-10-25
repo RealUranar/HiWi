@@ -491,8 +491,16 @@ You can generate a movie using the following command:
 If there is no `.xtc` file a `.trr` file can be used instead.
 This creates a snapshots.pdb file which can be viewed using `vmd`.
 
-#### 2. Show specific bonds
-ToDo
+#### 2. Show specific dihedrals
+First you have to generate a index file for the atoms you are interested in. You can do this by using the command:
+`gmx mk_angndx -s prod.tpr -type dihedral`
+The full documentation for all the different modules under gromacs can be found [HERE](https://manual.gromacs.org/current/onlinehelp/gmx-angle.html).
+
+To analyze the dihedral angles you can use the following command:
+`gmx angle -f prod.xtc -type dihedral`
+
+The final `.xvg` file can be analyzed via different means.
+
 
 #### 3. Analyze the plumed output
 You can analyze the `HILLS` file using:

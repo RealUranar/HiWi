@@ -23,7 +23,7 @@ class GromacsProd(Task):
         with open(f"{self.job.location}Gromacs/System.gro","r") as file:
             structure = file.read()
         dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[6]
-        dihedralString = f"{dihedral[0]+1},{dihedral[1]+1},{dihedral[2]+1},{dihedral[3]+1}"
+        dihedralString = f"{dihedral[0]},{dihedral[1]},{dihedral[2]},{dihedral[3]}"
         with open(f"{self.newPath}/plumed.dat", "r") as file:
             lines = file.readlines()
         
@@ -82,7 +82,7 @@ class GromacsProd(Task):
         with open(f"{self.newPath}/table_fourier.itp", "w") as file:
             file.writelines([
                 "; ai    aj    ak    al  funct   n   k\n",
-                f"{dihedral[0]+1}   {dihedral[1]+1}   {dihedral[2]+1}   {dihedral[3]+1}       8       0   1   \n"  
+                f"{dihedral[0]}   {dihedral[1]}   {dihedral[2]}   {dihedral[3]}       8       0   1   \n"  
             ])
 
     def _changeTOPFile(self):
@@ -145,3 +145,4 @@ if __name__ == "__main__":
         structure = file.read()
     dihedral = task._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[0]
     print(dihedral)
+    

@@ -2,3 +2,6 @@
 .venv
 schedule.xlsx
 Program/Calculations/*
+COLVAR
+Analyses
+Tests
