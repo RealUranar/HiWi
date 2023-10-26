@@ -93,7 +93,7 @@ class GromacsProd(Task):
         temp = []
         for i, line in enumerate(lines):
             if "[ system ]" in line:
-                temp.insert(i, '\n#include "table_fourier.itp"\n')
+                temp.insert(i, '#include "table_fourier.itp"\n\n')
             temp.append(line)
 
         with open(f"{self.newPath}/System.top", "w") as file:
