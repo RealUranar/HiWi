@@ -18,6 +18,7 @@ class Task():
 
     def submit(self, taskFolder, joScriptName = "run_job.sh"):
         shell = subprocess.run(f"sbatch {joScriptName}", cwd=taskFolder, shell=True)
+        print(f"Job {self.job.name} with id {self.job.id} submitted")
         print(shell.stdout)
 
     def isFinished(self):
