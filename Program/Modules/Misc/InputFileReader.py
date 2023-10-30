@@ -21,7 +21,7 @@ class Reader():
             if key == "freezeFragmentAt":
                 arg = np.array(arg.split(","), dtype=int)
 
-            keyWords[key] = arg
+            keyWords[key.lower()] = arg
         
         return keyWords
 
