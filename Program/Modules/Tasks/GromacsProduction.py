@@ -93,7 +93,7 @@ class GromacsProd(Task):
         temp = []
         for i, line in enumerate(lines):
             if "[ system ]" in line:
-                temp.insert(i, '\n#include "table_fourier.itp"\n')
+                temp.insert(i, '#include "table_fourier.itp"\n\n')
             temp.append(line)
 
         with open(f"{self.newPath}/System.top", "w") as file:
@@ -142,8 +142,10 @@ if __name__ == "__main__":
     #task.writeInputFile()
     #task.generateJobScript()
     # task.submit()
-    with open(f"{task.job.location}Gromacs/System.gro","r") as file:
-        structure = file.read()
-    dihedral = task._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")
-    print(dihedral)
+    # with open(f"{task.job.location}Gromacs/System.gro","r") as file:
+    #     structure = file.read()
+    # dihedral = task._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")
+    # print(dihedral)
+    task._changeTOPFile()
+
     
