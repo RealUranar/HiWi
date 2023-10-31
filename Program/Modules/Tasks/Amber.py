@@ -77,6 +77,8 @@ class Amber(Task):
                 outFile = makeUnitcell(inFile=file.read(), z_ySideLengh=6)
             with open(f"{self.newPath}/CHANGEME.PDB", "w") as file:
                 file.write(outFile)
+            print(f"Amber job {self.job.name} Part 1 succesfull!\n Shift the cell in 'CHANGEME.PDB' and save as 'SHIFTED.PDB' to continue.")
+
         except Exception as e:
             print(f"Amber Job Error: {e}")
             self.job.updateJob(Amber = -1)
