@@ -37,7 +37,7 @@ with Excel() as scheduler:
 
 for job in jobs:
     for runningTask in job.getRunningTask():
-        runningTask.isFinished()
+        runningTask.isFinished() #Check if a job has finished
 
     for nextTask in job.getNextTask():  #Execute every function defined in the execute order
         for func in nextTask.executionOrder:

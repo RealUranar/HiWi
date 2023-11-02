@@ -134,7 +134,7 @@ class Gaussian_opt(Task,Reader):
         molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
         molecule.removeAtom(inputVars["removeAtomNr"]-1)
 
-        fragment = Molecule(f"Modules/fragment.xyz")
+        fragment = Molecule(f"{self.job.location}fragment.xyz")
         fragment.removeAtom(inputVars["removeAtomFragmentNr"]-1)  #Everywhere -1 because index starts at 0
         
 
