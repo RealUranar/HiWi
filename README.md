@@ -2,7 +2,7 @@
 
 ## Table of content
 
-1. Steps to complete a calculation
+  1. Steps to complete a calculation
     1. [Build the molecule](#Building-a-Molecule) 
     2. [Perform a orca optimization](#performing-a-optimization-with-orca)
     3. [Adding a fragment and optimizing with Gaussian](#combining-your-molecule-with-a-fragment)
@@ -13,7 +13,7 @@
     8. [Gromacs: NVT Equillibration](#nvt-equillibration)
     9. [Gromacs: Production](#production)
     10. [Analyzing results](#analyzing-results)
-2. In Progress
+  2. [How to do it easier](/Program/README.md)
 
 ## Steps to complete one calculation
 ```mermaid
