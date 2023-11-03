@@ -1,6 +1,8 @@
 import os, shutil, glob
 import subprocess
 from task import Task
+from InputFileReader import Reader
+from writePlumed import writePlumed
 
 class GromacsEnergy(Task):
     def __init__(self,job):
@@ -28,6 +30,16 @@ class GromacsEnergy(Task):
         self._changeGROFile()
         self._changeTOPFile()
         self._writePosRe()
+
+        if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):  #Write a plumed file to restrain the CNNC dihedral at 0 degrees
+            with open(f"{self.job.location}Amber/System.gro","r") as file:
+                structure = file.read()
+            dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[6]
+
+            with open(f"{self.newPath}/plumedRestraint.dat", "w") as file:
+                file.write(writePlumed(dihedral=dihedral, RESTRAIN=True, PRINT=False))
+
+
         shutil.copy("Modules/GromacsScripts/em.mdp", f"{self.newPath}")
 
     def generateJobScript(self):
@@ -36,8 +48,10 @@ class GromacsEnergy(Task):
             "#!/usr/local_rwth/bin/zsh\n",
             "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
             "gmx grompp -f em.mdp -c System.gro -p System.top -r System.gro -o em.tpr\n",
-            "gmx mdrun -v -deffnm em -ntmpi 1\n"
+            "gmx mdrun -v -deffnm em -ntmpi 1"
             ])
+            if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):
+                file.write(" -plumed plumedRestraint.dat")
         os.chmod(f"{self.newPath}/em.sh", 0o755)
 
 
@@ -76,8 +90,9 @@ class GromacsEnergy(Task):
 
         temp = []
         for i, line in enumerate(lines):
-            if "[ bonds ]" in line:
+            if "[ system ]" in line:
                 temp.insert(i-1, '\n#ifdef POSRES\n#include "posre.itp"\n#endif\n')
+                temp.insert(i, '\n#ifdef POTENTIAL\n#include "table_fourier.itp"\n#endif\n')
             temp.append(line)
 
         with open(f"{self.newPath}/System.top", "w") as file:
@@ -100,11 +115,11 @@ if __name__ == "__main__":
     job = Job(name = "Test", id = 666, location="Calculations/TESTING/", tasks={"Amber":1})
     
     task = GromacsEnergy(job)
-    out = task._changeGROFile()
-    print(out)
+    #out = task._changeTOPFile()
+    #print(out)
     # task._writePosRe()
     # task._writeTableFourier()
     #task.moveFiles()
     #task.writeInputFile()
-    #task.generateJobScript()
+    task.generateJobScript()
     # task.submit()

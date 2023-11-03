@@ -1,34 +1,42 @@
 import numpy as np
 class Reader():
-    @staticmethod
-    def readInputFile(fileName):
+    def __init__(self,fileName):
         with open(fileName) as file:
             content = file.read()
 
-        keyWords = {}
-
+        keyWordsDict = {}
         for line in content.split("\n"):
             if line.find("#") != -1:
                 line = line[:line.find("#")]
             if line == "":
                 continue
             
-            key, arg = line.replace(" ", "").split("=")
+            key, *arg = line.replace(" ", "").split("=")
+            if len(arg) == 0:
+                arg = key
+            else:
+                arg = arg[0]
+
             try:
                 arg = int(arg)
             except:
                 pass
-            if key == "freezeFragmentAt":
-                arg = np.array(arg.split(","), dtype=int)
 
-            keyWords[key.lower()] = arg
+            keyWordsDict[key.lower()] = arg
         
-        return keyWords
+        self.keyWordsDict = keyWordsDict
+
+    def getKeyword(self,keyword:str):
+        try:
+            return  self.keyWordsDict[keyword.lower()]
+        except KeyError:
+            return False
+        
 
 
 
 
 if __name__ == "__main__":
-    reader = Reader()
-    ret = reader.readInputFile("Input")
+    reader = Reader("Input")
+    ret = reader.getKeyword("Name")
     print(ret)

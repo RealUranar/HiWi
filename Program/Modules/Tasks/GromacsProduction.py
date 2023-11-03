@@ -2,6 +2,8 @@ import os, shutil, sys, glob
 sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 from task import Task
+from writePlumed import writePlumed
+from InputFileReader import Reader
 import numpy as np
 
 import subprocess
@@ -17,25 +19,16 @@ class GromacsProd(Task):
     def writeInputFile(self):
         self._getEnergys()
         self._writeTableFourier()
-        self._changeTOPFile()
         shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
-        shutil.copy("Modules/GromacsScripts/plumed.dat", f"{self.newPath}")
         
         with open(f"{self.job.location}Gromacs/System.gro","r") as file:
             structure = file.read()
         dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[6]
-        dihedralString = f"{dihedral[0]},{dihedral[1]},{dihedral[2]},{dihedral[3]}"
-        with open(f"{self.newPath}/plumed.dat", "r") as file:
-            lines = file.readlines()
-        
         with open(f"{self.newPath}/plumed.dat", "w") as file:
-            for line in lines:
-                if "ATOMS=" in line:
-                    file.write(f"t: TORSION ATOMS={dihedralString}\n")
-                elif "ATOMS1=" in line:
-                    file.write(f"a: ALPHABETA ATOMS1={dihedralString} REFERENCE=3.14")
-                else:
-                    file.write(line)
+            if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):
+                file.write(writePlumed(dihedral, METAD=True, RATES=True))
+            else:
+                file.write(writePlumed(dihedral, METAD=True))
 
     def generateJobScript(self):
         with open(f"{self.newPath}/prod.sh","w") as file:
@@ -85,19 +78,6 @@ class GromacsProd(Task):
                 "; ai    aj    ak    al  funct   n   k\n",
                 f"{dihedral[0]}   {dihedral[1]}   {dihedral[2]}   {dihedral[3]}       8       0   1   \n"  
             ])
-
-    def _changeTOPFile(self):
-        with open(f"{self.newPath}/System.top", "r") as file:
-            lines = file.readlines()
-
-        temp = []
-        for i, line in enumerate(lines):
-            if "[ system ]" in line:
-                temp.insert(i, '#include "table_fourier.itp"\n\n')
-            temp.append(line)
-
-        with open(f"{self.newPath}/System.top", "w") as file:
-            file.writelines(temp)
 
     def _getEnergys(self):
             from scipy.interpolate import CubicSpline

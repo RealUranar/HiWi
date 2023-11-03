@@ -4,72 +4,13 @@ sys.path.append("Modules/Misc")
 from InputFileReader import Reader
 from Sbatch import JobScripts
 from task import Task
-
-from rdkit import Chem
-
-from rdkit.Chem.rdMolTransforms import SetDihedralDeg
-from rdkit.Chem.rdmolfiles import MolToXYZBlock
-from rdkit.Chem import AllChem
-
-class MoleculeActions():
-    def combineMolecules(mol1, mol2, index:tuple[int,int]):  #Takes the rdkit mols and combines them
-        """Function to combine two rdkit-mol objects at a specific point
-
-        Args:
-            mol1 (_mol_): rdkit structure of molecule Nr.1
-            mol2 (_mol_): rdkit Structure of molecule Nr.2
-            index (_tuple_): A tuple with the index of the atoms to connect (eg. (12, 24)). IMPORTANT: The order has to match the order of the given Molecules
-
-        Returns:
-            _mol_: A New Molecule
-        """
-        combo = Chem.CombineMols(mol1, mol2)  #Combine
-        edcombo = Chem.EditableMol(combo)     #Make editabel
-        a1, a2 = index
-        
-        edcombo.AddBond(a1, mol1.GetNumAtoms()+ a2, order=Chem.rdchem.BondType.SINGLE)  #Combine the molecules with a bond
-        combinedMol = edcombo.GetMol()  #Get the finished structure
-
-        combinedMol.UpdatePropertyCache() #Black magic to make the structure work
-        Chem.GetSymmSSSR(combinedMol)
-
-        return Molecule(combinedMol)
-    
-    def Mol2COM(mol): #Takes the rdkit mol and give .com file
-        from openbabel import openbabel
-        obConversion = openbabel.OBConversion()
-        obConversion.SetInAndOutFormats("mol", "com")
-
-        molFile =Chem.MolToMolBlock(mol)
-        comFile = openbabel.OBMol()
-        obConversion.ReadString(comFile, molFile)
-        return obConversion.WriteString(comFile)
-    
-
-class Molecule():
-    def __init__(self, molecule):
-        if type(molecule) == str:
-            self.mol = Chem.MolFromXYZFile(molecule)
-            try:
-                from rdkit.Chem.rdDetermineBonds import DetermineBonds
-                DetermineBonds(self.mol,charge = 0)
-            except:
-                from rdkit.Chem.rdDetermineBonds import DetermineConnectivity
-                DetermineConnectivity(self.mol,charge = 0)
-        else:
-            self.mol = molecule
-    
-    def getMol(self):
-        return self.mol
-    
-    def removeAtom(self, atomNr):
-        edFrag = Chem.EditableMol(self.mol)
-        edFrag.RemoveAtom(atomNr)
-        self.mol = edFrag.GetMol()
-    
+from molecule import Molecule
+from InputFileReader import Reader
 
 
-class Gaussian_opt(Task,Reader):
+import numpy as np
+
+class Gaussian_opt(Task):
     def __init__(self,job):
         super().__init__(job)
         self.newPath = f"{self.job.location}Gaussian"
@@ -129,22 +70,21 @@ class Gaussian_opt(Task,Reader):
 
 
     def _setupMolecule(self):
-        inputVars = self.readInputFile(f"{self.job.location}Input")
+
+        inputVars = Reader(f"{self.job.location}Input")
 
         molecule = Molecule(f"{self.newPath}/orca_opt.xyz")
-        molecule.removeAtom(inputVars["removeAtomNr"]-1)
+        molecule.removeAtom(inputVars.getKeyword("RemoveAtomNr")-1)
 
         fragment = Molecule(f"{self.job.location}fragment.xyz")
-        fragment.removeAtom(inputVars["removeAtomFragmentNr"]-1)  #Everywhere -1 because index starts at 0
+        fragment.removeAtom(inputVars.getKeyword("RemoveAtomFragmentNr")-1)  #Everywhere -1 because index starts at 0
         
+        combinedMolecules = Molecule.combineMolecules(fragment.getMol(), molecule.getMol(), (inputVars.getKeyword("CombineFragmentAt")-1,inputVars.getKeyword("CombineAtomAt")-1))
 
-        combinedMolecules = MoleculeActions.combineMolecules(fragment.getMol(), molecule.getMol(), (inputVars["combineFragmentAt"]-1,inputVars["combineAtomAt"]-1))
-        AllChem.ConstrainedEmbed(combinedMolecules.mol, fragment.mol)  #Somewhat relax the structure to make a belivable Molecule
-
-        di = self._findSubstring(smilesString="*N=N*", inStructure= MolToXYZBlock(combinedMolecules.getMol()))[0]
-        SetDihedralDeg(combinedMolecules.mol.GetConformer(), di[0]-1, di[1]-1, di[2]-1, di[3]-1, 180) #Rotate the molecule to the right dihedral
-
-        comFile = MoleculeActions.Mol2COM(combinedMolecules.getMol())
+        di = self._findSubstring(smilesString="*N=N*", inStructure= combinedMolecules.getXYZBlock())[0]
+        
+        combinedMolecules.setDihedralAgle(180, np.array(di)-1)#Rotate the molecule to the right dihedral
+        comFile = combinedMolecules.getCOMBlock()
         return comFile
 
 if __name__ == "__main__":

@@ -16,8 +16,8 @@ from Amber import Amber
 
 # Setting up the new Calculation in Excel spread sheet
 def setupNewCalculation(NewFolder):
-    keyDict = Reader().readInputFile(f"{NewFolder}Input")
-    name = keyDict["Name"]
+    inputVars = Reader(f"{NewFolder}Input")
+    name = inputVars.getKeyword("Name")
     with Excel() as schedule:
         schedule.createJob(name, location = f"Calculations/{name}/") #Setup New Job in the Excel Spreadsheet
 

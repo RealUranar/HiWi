@@ -4,6 +4,7 @@ from task import Task
 sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 import subprocess
+from InputFileReader import Reader
 
 class GromacsEquill(Task):
     def __init__(self,job):
@@ -24,8 +25,11 @@ class GromacsEquill(Task):
             "gmx grompp -f nvt.mdp -c em.gro -p System.top -r em.gro -o nvt.tpr",
             ])
         os.chmod(f"{self.newPath}/nvt.sh", 0o755)
-        JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed=False, tableb=False, jobtype="nvt", time= "0-01:00:00")
-
+        
+        if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):
+            JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="-plumed plumedRestraint.dat", tableb="", jobtype="nvt", time= "0-01:00:00")
+        else:
+            JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="", tableb="", jobtype="nvt", time= "0-01:00:00")
 
     def submit(self):
         ret = subprocess.run(f"./nvt.sh",

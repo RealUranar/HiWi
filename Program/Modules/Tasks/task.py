@@ -28,7 +28,7 @@ class Task():
         """_summary_
 
         Args:
-            smilesString (str): For CSC use "csc", for CNNC use "*N=N*"
+            smilesString (str): For CSC use "csc", for CNNC use "\*N=N\*"
             inStructure (str): string of the stucrure you want to input
             inFormat (str, optional): Format of the file. Defaults to "xyz".
 
@@ -41,7 +41,7 @@ class Task():
         subStringIdx = smarts.findall(mol)
         if len(subStringIdx) == 0:
             subStringIdx = pybel.Smarts("*NN*").findall(mol)
-            print(f"Could not find {smilesString} string in Structure, using '*NN*'. Make sure this still works!")
+            print(f"Could not find {smilesString} string in Structure, using '*NN*'. Make sure this still works!\nThis returned {len(subStringIdx)} entrys")
 
         return subStringIdx
 
