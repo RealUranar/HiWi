@@ -7,7 +7,7 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
         out += "RESTRAINT ARG=a AT=0 KAPPA=2000.0 LABEL=restraint\n\n"
 
     if RATES:
-        out += "COMMITTOR ..."
+        out += "COMMITTOR ...\n"
         lines = [
         "ARG=a",
         "STRIDE=10 ",

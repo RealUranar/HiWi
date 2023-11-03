@@ -48,14 +48,17 @@ class GromacsProd(Task):
                     cwd=self.newPath)
         print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
         self.job.updateJob(GromacsProduction = 2)
+        
         if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
-            os.makedirs(f"{self.job.location}Gromacs_Rates/1")
+            os.makedirs(f"{self.job.location}Gromacs_Rates/Base")
             files = ["run_job.sh", "prod.tpr", "table_fourier.itp", "table_d0.xvg", "posre.itp", "plumed.dat"]
             for file in files:
-                shutil.copy(f"{self.newPath}/{file}", f"{self.job.location}Gromacs_Rates/1")
+                shutil.copy(f"{self.newPath}/{file}", f"{self.job.location}Gromacs_Rates/Base")
             for i in range(20):
-                shutil.copytree(f"{self.job.location}Gromacs_Rates/1", f"{self.job.location}Gromacs_Rates/{i+2}")
-
+                shutil.copytree(f"{self.job.location}Gromacs_Rates/Base", f"{self.job.location}Gromacs_Rates/{i+1}")
+                super().submit(f"{self.job.location}Gromacs_Rates/{i+1}")
+            return 
+        
         print(f"Submitted Gromacs Production job {self.job.name}")
         return super().submit(self.newPath)
         
