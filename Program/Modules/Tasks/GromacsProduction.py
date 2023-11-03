@@ -42,12 +42,12 @@ class GromacsProd(Task):
 
 
     def submit(self):
-        # ret = subprocess.run(f"./prod.sh",
-        #             capture_output = True,
-        #             text = True,
-        #             cwd=self.newPath)
-        # print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
-        #self.job.updateJob(GromacsProduction = 2)
+        ret = subprocess.run(f"./prod.sh",
+                    capture_output = True,
+                    text = True,
+                    cwd=self.newPath)
+        print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
+        self.job.updateJob(GromacsProduction = 2)
         if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
             os.makedirs(f"{self.job.location}Gromacs_Rates/1")
             files = ["run_job.sh", "prod.tpr", "table_fourier.itp", "table_d0.xvg", "posre.itp", "plumed.dat"]
@@ -57,7 +57,7 @@ class GromacsProd(Task):
                 shutil.copytree(f"{self.job.location}Gromacs_Rates/1", f"{self.job.location}Gromacs_Rates/{i+2}")
 
         print(f"Submitted Gromacs Production job {self.job.name}")
-        # return super().submit(self.newPath)
+        return super().submit(self.newPath)
         
         
     def isFinished(self):
