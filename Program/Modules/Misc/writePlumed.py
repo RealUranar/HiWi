@@ -56,4 +56,4 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
 
 if __name__ == "__main__":
     with open("plumedTest", "w") as file:
-        file.write(writePlumed([1,2,3,4],RESTRAIN=True, RATES=True))
+        file.write(writePlumed([1,2,3,4],RESTRAIN=True, RATES=True, METAD=True))
