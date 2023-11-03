@@ -26,7 +26,7 @@ class GromacsEquill(Task):
             ])
         os.chmod(f"{self.newPath}/nvt.sh", 0o755)
         
-        if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):
+        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
             JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="-plumed plumedRestraint.dat", tableb="", jobtype="nvt", time= "0-01:00:00")
         else:
             JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="", tableb="", jobtype="nvt", time= "0-01:00:00")

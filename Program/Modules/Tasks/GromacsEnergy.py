@@ -31,7 +31,7 @@ class GromacsEnergy(Task):
         self._changeTOPFile()
         self._writePosRe()
 
-        if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):  #Write a plumed file to restrain the CNNC dihedral at 0 degrees
+        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):  #Write a plumed file to restrain the CNNC dihedral at 0 degrees
             with open(f"{self.job.location}Amber/System.gro","r") as file:
                 structure = file.read()
             dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[6]
@@ -50,7 +50,7 @@ class GromacsEnergy(Task):
             "gmx grompp -f em.mdp -c System.gro -p System.top -r System.gro -o em.tpr\n",
             "gmx mdrun -v -deffnm em -ntmpi 1"
             ])
-            if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):
+            if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
                 file.write(" -plumed plumedRestraint.dat")
         os.chmod(f"{self.newPath}/em.sh", 0o755)
 

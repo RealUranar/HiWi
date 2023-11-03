@@ -5,8 +5,6 @@ from InputFileReader import Reader
 from Sbatch import JobScripts
 from task import Task
 from molecule import Molecule
-from InputFileReader import Reader
-
 
 import numpy as np
 

@@ -25,7 +25,7 @@ class GromacsProd(Task):
             structure = file.read()
         dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[6]
         with open(f"{self.newPath}/plumed.dat", "w") as file:
-            if Reader("Calculations/TESTING/Input").getKeyword("calcRates"):
+            if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
                 file.write(writePlumed(dihedral, METAD=True, RATES=True))
             else:
                 file.write(writePlumed(dihedral, METAD=True))
