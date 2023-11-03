@@ -42,14 +42,22 @@ class GromacsProd(Task):
 
 
     def submit(self):
-        ret = subprocess.run(f"./prod.sh",
-                    capture_output = True,
-                    text = True,
-                    cwd=self.newPath)
-        print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
-        self.job.updateJob(GromacsProduction = 2)
+        # ret = subprocess.run(f"./prod.sh",
+        #             capture_output = True,
+        #             text = True,
+        #             cwd=self.newPath)
+        # print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
+        #self.job.updateJob(GromacsProduction = 2)
+        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
+            os.makedirs(f"{self.job.location}Gromacs_Rates/1")
+            files = ["run_job.sh", "prod.tpr", "table_fourier.itp", "table_d0.xvg", "posre.itp", "plumed.dat"]
+            for file in files:
+                shutil.copy(f"{self.newPath}/{file}", f"{self.job.location}Gromacs_Rates/1")
+            for i in range(20):
+                shutil.copytree(f"{self.job.location}Gromacs_Rates/1", f"{self.job.location}Gromacs_Rates/{i+2}")
+
         print(f"Submitted Gromacs Production job {self.job.name}")
-        return super().submit(self.newPath)
+        # return super().submit(self.newPath)
         
         
     def isFinished(self):
@@ -121,11 +129,11 @@ if __name__ == "__main__":
     #task.moveFiles()
     #task.writeInputFile()
     #task.generateJobScript()
-    # task.submit()
+    task.submit()
     # with open(f"{task.job.location}Gromacs/System.gro","r") as file:
     #     structure = file.read()
     # dihedral = task._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")
     # print(dihedral)
-    task._changeTOPFile()
+    #task._changeTOPFile()
 
     
