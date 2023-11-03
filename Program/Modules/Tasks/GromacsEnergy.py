@@ -90,9 +90,10 @@ class GromacsEnergy(Task):
 
         temp = []
         for i, line in enumerate(lines):
-            if "[ system ]" in line:
+            if "[ bonds ]" in line:
                 temp.insert(i-1, '\n#ifdef POSRES\n#include "posre.itp"\n#endif\n')
-                temp.insert(i, '\n#ifdef POTENTIAL\n#include "table_fourier.itp"\n#endif\n')
+            if "[ system ]" in line:
+                temp.insert(i-1, '\n#ifdef POTENTIAL\n#include "table_fourier.itp"\n#endif\n')
             temp.append(line)
 
         with open(f"{self.newPath}/System.top", "w") as file:
