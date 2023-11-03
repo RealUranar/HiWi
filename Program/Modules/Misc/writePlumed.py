@@ -19,10 +19,14 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
         out += "...\n\n"
 
     if METAD:
+        pace = 200
+        if RATES:
+            pace = 50000
+
         lines = [
         "LABEL=metad",
         "ARG=t",
-        "PACE=200",
+        f"PACE={pace}",
         "HEIGHT=1.0",
         "SIGMA=0.1",
         "GRID_MIN=-pi",
@@ -36,6 +40,7 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
         out += "METAD ...\n"
         for word in lines:
            out += f"\t{word}\n"
+
         if RATES:
             out += f"\tACCELERATION\n"
         
