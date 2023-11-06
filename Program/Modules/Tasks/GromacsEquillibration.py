@@ -15,7 +15,10 @@ class GromacsEquill(Task):
                                self.submit]
         
     def writeInputFile(self, temp =310):
-        shutil.copy("Modules/GromacsScripts/nvt.mdp", f"{self.newPath}")
+        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
+            shutil.copy("Modules/GromacsScripts/nvt_rates.mdp", f"{self.newPath}/nvt.gro")
+        else:
+            shutil.copy("Modules/GromacsScripts/nvt.mdp", f"{self.newPath}")
 
     def generateJobScript(self):
         with open(f"{self.newPath}/nvt.sh","w") as file:

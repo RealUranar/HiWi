@@ -5,12 +5,11 @@ from task import Task
 from writePlumed import writePlumed
 from InputFileReader import Reader
 import numpy as np
-
 import subprocess
-
+  
 class GromacsProd(Task):
     def __init__(self,job):
-        super().__init__(job)
+        Task.__init__(self, job)
         self.newPath = f"{self.job.location}Gromacs"
         self.executionOrder = [self.writeInputFile,
                                self.generateJobScript,
@@ -39,30 +38,7 @@ class GromacsProd(Task):
             ])
         os.chmod(f"{self.newPath}/prod.sh", 0o755)
         JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath)
-
-
-    def submit(self):
-        ret = subprocess.run(f"./prod.sh",
-                    capture_output = True,
-                    text = True,
-                    cwd=self.newPath)
-        print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
-        self.job.updateJob(GromacsProduction = 2)
-        
-        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
-            os.makedirs(f"{self.job.location}Gromacs_Rates/Base")
-            files = ["run_job.sh", "prod.tpr", "table_fourier.itp", "table_d0.xvg", "posre.itp", "plumed.dat"]
-            for file in files:
-                shutil.copy(f"{self.newPath}/{file}", f"{self.job.location}Gromacs_Rates/Base")
-            for i in range(20):
-                shutil.copytree(f"{self.job.location}Gromacs_Rates/Base", f"{self.job.location}Gromacs_Rates/{i+1}")
-                super().submit(f"{self.job.location}Gromacs_Rates/{i+1}")
-            return 
-        
-        print(f"Submitted Gromacs Production job {self.job.name}")
-        return super().submit(self.newPath)
-        
-        
+         
     def isFinished(self):
         tail = self._readTail(self.newPath, file = "prod.log")
         hasFinished = "Finished mdrun" in str(tail)
@@ -78,6 +54,47 @@ class GromacsProd(Task):
         else:
             print(f"Gromacs Job {self.job.name} is still running")
 
+    def submit(self):
+        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
+            ret = subprocess.run(f"./getFrames.sh",
+                capture_output = True,
+                text = True,
+                cwd=f"{self.job.location}Gromacs")
+            
+            groFiles = []
+            with open(f"{self.job.location}Gromacs/nvt.gro", "r") as file:
+                out = ""
+                for line in file.readlines():
+                    if "frame" in line and out != "":
+                        groFiles.append(out)
+                        out = ""
+                    out += line
+                groFiles.append(out)
+            
+            os.makedirs(f"{self.job.location}Gromacs_Rates/Base")
+            files = ["run_job.sh", "table_fourier.itp", "table_d0.xvg", "posre.itp", "plumed.dat", "System.top", "prod.mdp", "prod.sh"]
+            for file in files:
+                shutil.copy(f"{self.newPath}/{file}", f"{self.job.location}Gromacs_Rates/Base")
+            for i in range(len(groFiles)):
+                shutil.copytree(f"{self.job.location}Gromacs_Rates/Base", f"{self.job.location}Gromacs_Rates/{i+1}")
+                with open(f"{self.job.location}Gromacs_Rates/{i+1}/nvt.gro", "w") as file:
+                    file.write(groFiles[i])
+
+                ret = subprocess.run(f"./prod.sh",
+                        capture_output = True,
+                        text = True,
+                        cwd=f"{self.job.location}Gromacs_Rates/{i+1}")
+                super().submit(f"{self.job.location}Gromacs_Rates/{i+1}")
+        else:
+            ret = subprocess.run(f"./prod.sh",
+                        capture_output = True,
+                        text = True,
+                        cwd=self.newPath)
+            print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
+            self.job.updateJob(GromacsProduction = 2)
+            print(f"Submitted Gromacs Production job {self.job.name}")
+            return super().submit(self.newPath)
+        
 
     def _writeTableFourier(self):
         with open(f"{self.job.location}Amber/System.gro","r") as file:
@@ -122,6 +139,7 @@ class GromacsProd(Task):
 
             np.savetxt(f"{self.newPath}/table_d0.xvg", np.column_stack((phi_ges, E_ges, y_minus)), fmt="%12.8f\t %12.8f\t %12.8f")
 
+
 if __name__ == "__main__":
     import sys
     sys.path.append("Modules/Misc")
@@ -132,7 +150,7 @@ if __name__ == "__main__":
     #task.moveFiles()
     #task.writeInputFile()
     #task.generateJobScript()
-    task.submit()
+    # task.submit()
     # with open(f"{task.job.location}Gromacs/System.gro","r") as file:
     #     structure = file.read()
     # dihedral = task._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")
