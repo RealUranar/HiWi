@@ -62,7 +62,7 @@ class GromacsProd(Task):
                 cwd=f"{self.job.location}Gromacs")
             
             groFiles = []
-            with open(f"{self.job.location}Gromacs/nvt.gro", "r") as file:
+            with open(f"{self.job.location}Gromacs/allNVT.gro", "r") as file:
                 out = ""
                 for line in file.readlines():
                     if "frame" in line and out != "":
