@@ -17,9 +17,10 @@ class Orca_opt(Task):
     def moveFiles(self):
         print(self.newPath)
         os.mkdir(self.newPath) # Create new SubFolders
-        xyzFilePath = glob.glob(f"{self.job.location}/*.xyz")[0]  #Get Path to the xyz File
-        shutil.copy(xyzFilePath, f"{self.newPath}/startMolecule.xyz") #Copy xyz File to new directory
-        os.remove(xyzFilePath)
+        xyzFilePath = glob.glob(f"{self.job.location}/*.xyz")  #Get Path to the xyz File
+        xyzFilePath.remove("fragment.xyz")  #Remove the fragment file
+        shutil.copy(xyzFilePath[0], f"{self.newPath}/startMolecule.xyz") #Copy xyz File to new directory
+        os.remove(xyzFilePath[0])
 
     def writeInputFile(self):
         with open(f"{self.newPath}/startMolecule.xyz","r") as file:
