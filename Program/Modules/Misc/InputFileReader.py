@@ -38,15 +38,16 @@ class Reader():
                 ]
         if keyword.lower() == "tasks":
             tasks = self.keyWordsDict[keyword.lower()].split(",")
-            if tasks[0] == "Rates":
-                return "Rates", basicTasks
-            elif tasks[0] == "Barrier":
-                return "Barrier", basicTasks
+            if tasks[0].lower() == "rates":
+                return "rates", basicTasks
+            elif tasks[0].lower() == "barrier":
+                return "barrier", basicTasks
             else:
                 return None, tasks
         try:
             return  self.keyWordsDict[keyword.lower()]
         except KeyError:
+            print("Keyword not found")
             return None
         
 
