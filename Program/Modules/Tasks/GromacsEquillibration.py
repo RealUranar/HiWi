@@ -15,8 +15,8 @@ class GromacsEquill(Task):
                                self.submit]
         
     def writeInputFile(self, temp =310):
-        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
-            shutil.copy("Modules/GromacsScripts/nvt_rates.mdp", f"{self.newPath}/nvt.gro")
+        if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
+            shutil.copy("Modules/GromacsScripts/nvt_rates.mdp", f"{self.newPath}/nvt.mdp")
         else:
             shutil.copy("Modules/GromacsScripts/nvt.mdp", f"{self.newPath}")
 
@@ -29,7 +29,7 @@ class GromacsEquill(Task):
             ])
         os.chmod(f"{self.newPath}/nvt.sh", 0o755)
         
-        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
+        if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
             JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="-plumed plumedRestraint.dat", tableb="", jobtype="nvt", time= "0-01:00:00")
         else:
             JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="", tableb="", jobtype="nvt", time= "0-01:00:00")

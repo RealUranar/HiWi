@@ -24,7 +24,7 @@ class GromacsProd(Task):
             structure = file.read()
         dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[6]
         with open(f"{self.newPath}/plumed.dat", "w") as file:
-            if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
+            if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
                 file.write(writePlumed(dihedral, METAD=True, RATES=True))
             else:
                 file.write(writePlumed(dihedral, METAD=True))
@@ -55,7 +55,7 @@ class GromacsProd(Task):
             print(f"Gromacs Job {self.job.name} is still running")
 
     def submit(self):
-        if Reader(f"{self.job.location}Input").getKeyword("calcRates"):
+        if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
             ret = subprocess.run(f"./getFrames.sh",
                 capture_output = True,
                 text = True,
