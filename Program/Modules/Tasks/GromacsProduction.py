@@ -32,9 +32,9 @@ class GromacsProd(Task):
     def generateJobScript(self):
         with open(f"{self.newPath}/prod.sh","w") as file:
             file.writelines([
-            "#!/usr/local_rwth/bin/zsh\n",
-            "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
-            "gmx grompp -f prod.mdp -c nvt.gro -r nvt.gro -p System.top -o prod.tpr\n",
+                "#!/usr/local_rwth/bin/zsh\n",
+                "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
+                "gmx grompp -f prod.mdp -c nvt.gro -r nvt.gro -p System.top -o prod.tpr\n",
             ])
         os.chmod(f"{self.newPath}/prod.sh", 0o755)
         JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath)
@@ -56,6 +56,13 @@ class GromacsProd(Task):
 
     def submit(self):
         if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
+            with open(f"{self.newPath}/getFrames.sh","w") as file:
+                file.writelines([
+                    "#!/usr/local_rwth/bin/zsh\n",
+                    "module load GCC/11.2.0 OpenMPI/4.1.1 GROMACS/2021.5-PLUMED-2.8.0\n",
+                    'echo "0 0" | gmx traj -f nvt.trr -s nvt.tpr -oxt allNVT.gro -dt 4 -b 400\n'
+                ])
+            os.chmod(f"{self.newPath}/getFrames.sh", 0o755)
             ret = subprocess.run(f"./getFrames.sh",
                 capture_output = True,
                 text = True,
@@ -71,6 +78,8 @@ class GromacsProd(Task):
                     out += line
                 groFiles.append(out)
             
+            groFiles =np.random.choice(groFiles, 30, replace=False)
+
             os.makedirs(f"{self.job.location}Gromacs_Rates/Base")
             files = ["run_job.sh", "table_fourier.itp", "table_d0.xvg", "posre.itp", "plumed.dat", "System.top", "prod.mdp", "prod.sh"]
             for file in files:
