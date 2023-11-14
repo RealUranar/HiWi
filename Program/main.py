@@ -53,7 +53,7 @@ for job in jobs:
         runningTask.isFinished() #Check if a job has finished
 
     if job.getRunningTasks() == [] and job.getFailedTasks() == []: #If no job is running and there is a job to run
-        for func in job.getNextTask()[0].executionOrder:
+        for func in job.getNextTasks()[0].executionOrder:
             func()  #Execute every function defined in the execute order
 
 

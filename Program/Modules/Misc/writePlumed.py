@@ -21,7 +21,7 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
     if METAD:
         pace = 200
         if RATES:
-            pace = 50000
+            pace = 500000
 
         lines = [
         "LABEL=metad",
@@ -48,7 +48,9 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
 
     if PRINT:
         out += "PRINT FILE=COLVAR ARG=t,a,metad.*\n"
-        out += "FLUSH STRIDE=1\n"
+        out += "PRINT FILE=ACCEL ARG=metad.acc\n"
+        out += "FLUSH STRIDE=10\n"
+        
     
     return out
 

@@ -38,7 +38,6 @@ class GromacsEquill(Task):
             JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="", tableb="", jobtype="nvt", time= "0-01:00:00")
 
     def submit(self):
-        self.job.updateJob(runningtasks = self.job.getNextTasks()[0])
         ret = subprocess.run(f"./nvt.sh",
                     capture_output = True, 
                     text = True,
