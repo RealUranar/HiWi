@@ -45,6 +45,7 @@ class Amber(Task):
 
     def isFinished(self):
         if len(glob.glob(f"{self.newPath}/SHIFTED.PDB")) == 0:
+            print(f"Amber job {self.job.name} Part 1 succesfull!\n Shift the cell in 'CHANGEME.PDB' and save as 'SHIFTED.PDB' to continue.")
             return
         
         import parmed as pmd
@@ -57,17 +58,17 @@ class Amber(Task):
             amber.save(f"{self.newPath}/System.top")
             amber.save(f"{self.newPath}/System.gro")
 
-            self.job.updateJob(Amber = 1, GromacsEnergy= 3)
+            self.job.updateJob(finnishedtasks = self.job.getNextTask()[0])
             print(f"Amber Job for {self.job.name} succesfull!")
 
         except Exception as e:
             print(f"Amber Job Error: {e}")
-            self.job.updateJob(Amber = -1)
+            self.job.updateJob(failedtasks = self.job.getNextTask()[0])
             print(f"Amber Job for {self.job.name} failed!")
 
     def submit(self):
         from unitcell import makeUnitcell
-        self.job.updateJob(Amber = 2)
+        self.job.updateJob(runningtasks = self.job.getNextTask()[0])
 
         try:
             self._runCondaScript(script="antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2", taskFolder=self.newPath)
@@ -81,7 +82,7 @@ class Amber(Task):
 
         except Exception as e:
             print(f"Amber Job Error: {e}")
-            self.job.updateJob(Amber = -1)
+            self.job.updateJob(failedtasks = self.job.getNextTask()[0])
             print(f"Amber Job for {self.job.name} failed!")
 
 

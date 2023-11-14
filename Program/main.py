@@ -2,8 +2,8 @@ import glob, os, sys, shutil
 
 sys.path.append("Modules/Misc")
 from InputFileReader import Reader
-from excel import Excel
 from job import Job
+from database import JobDatabase
 
 sys.path.append("Modules/Tasks")
 from Orca_Opt import Orca_opt
@@ -18,8 +18,18 @@ from Amber import Amber
 def setupNewCalculation(NewFolder):
     inputVars = Reader(f"{NewFolder}Input")
     name = inputVars.getKeyword("Name")
-    with Excel() as schedule:
-        schedule.createJob(name, location = f"Calculations/{name}/") #Setup New Job in the Excel Spreadsheet
+    id = JobDatabase.getLastID("Database.json") + 1
+    taks = inputVars.getKeyword("Tasks")[1]
+
+    JobDatabase.saveJob({"id": id,
+                        'name': name,
+                        'location': f"Calculations/{name}/",
+                        "tasks": {
+                            'waitingtasks': taks,
+                            "runningtasks": [],
+                            "finnishedtasks": [],
+                            "failedtasks" : []}},
+                        filepath= 'Database.json')
 
     os.makedirs(f"Calculations/{name}/") #Create new Folder
     files = glob.glob(f"{NewFolder}/*")
@@ -32,18 +42,17 @@ for NewFolder in glob.glob("Input/*/"):
     setupNewCalculation(NewFolder)
 
 #Get new Jobs to set up
-with Excel() as scheduler:
-    jobs = scheduler.readJobs()
+jobs = []
+for job in JobDatabase.loadJobs("Database.json"):
+    jobs.append(Job(job))
 
 for job in jobs:
     for runningTask in job.getRunningTask():
         runningTask.isFinished() #Check if a job has finished
 
-    for nextTask in job.getNextTask():  #Execute every function defined in the execute order
-        for func in nextTask.executionOrder:
-            func()
+    if job.getRunningTask() == [] and job.getNextTask() != []: #If no job is running and there is a job to run
+        for func in job.getNextTask()[0].executionOrder:
+            func()  #Execute every function defined in the execute order
 
 
-    with Excel() as scheduler:
-        scheduler.updateRow(job)
-    
+    JobDatabase.saveJob(job.toDict(), "Database.json") #Save the job to the database

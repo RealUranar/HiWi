@@ -42,7 +42,7 @@ class Orca_opt(Task):
         JobScripts().writeOrcaJob(name = self.job.id, location=self.newPath)
 
     def submit(self):
-        self.job.updateJob(Orca_Opt = 2)
+        self.job.updateJob(runningtasks = self.job.getNextTask()[0])
         return super().submit(self.newPath)
         
     def isFinished(self):
@@ -51,10 +51,10 @@ class Orca_opt(Task):
         succesfull = "****ORCA TERMINATED NORMALLY****" in tail
         if hasFinished == True:
             if succesfull == True:
-                self.job.updateJob(Orca_Opt = 1, Orca_Dihedral = 3)
+                self.job.updateJob(finnishedtasks = self.job.getNextTask()[0])
                 print(f"Orca opt Job {self.job.name} has finished succesfull")
             else:
-                self.job.updateJob(Orca_Opt = -1)
+                self.job.updateJob(failedtasks = self.job.getNextTask()[0])
                 print(f"Orca opt Job {self.job.name} run into a problem")
         else:
             print(f"Orca opt Job {self.job.name} is still running")

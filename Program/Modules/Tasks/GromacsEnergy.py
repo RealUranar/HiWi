@@ -62,9 +62,9 @@ class GromacsEnergy(Task):
                     cwd=self.newPath)
         
         if ret.returncode != 0:
-             self.job.updateJob(GromacsEnergy = -1)
+             self.job.updateJob(failedtasks = self.job.getNextTask()[0])
         else: 
-            self.job.updateJob(GromacsEnergy= 1, GromacsEquil= 3)
+            self.job.updateJob(finnishedtasks = self.job.getNextTask()[0])
         print(f"Gromacs energy minimization returned code: {ret.returncode}")
         
 

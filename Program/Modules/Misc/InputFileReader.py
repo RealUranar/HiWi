@@ -27,16 +27,32 @@ class Reader():
         self.keyWordsDict = keyWordsDict
 
     def getKeyword(self,keyword:str):
+        basicTasks = [
+                     "Orca_opt",
+                    "Orca_Dihedral",
+                    "Gaussian_opt",
+                    "Amber",
+                    "GromacsEnergy",
+                    "GromacsEquill",
+                    "GromacsProd"
+                ]
+        if keyword.lower() == "tasks":
+            tasks = self.keyWordsDict[keyword.lower()].split(",")
+            if tasks[0] == "Rates":
+                return "Rates", basicTasks
+            elif tasks[0] == "Barrier":
+                return "Barrier", basicTasks
+            else:
+                return None, tasks
         try:
             return  self.keyWordsDict[keyword.lower()]
         except KeyError:
-            return False
+            return None
         
 
 
-
-
 if __name__ == "__main__":
-    reader = Reader("Input")
-    ret = reader.getKeyword("Name")
+    inputFile ="Calculations/TESTING/Input"
+    reader = Reader(inputFile)
+    ret = reader.getKeyword("Tasks")
     print(ret)

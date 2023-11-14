@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "name": "test",
+        "location": "Calculations/TESTING/",
+        "tasks": {
+            "waitingtasks": [
+                "Orca_opt",
+                "Orca_Dihedral"
+            ],
+            "finnishedtasks": [],
+            "failedtasks": [],
+            "runningtasks": [
+                "GromacsProd"
+            ]
+        }
+    },
+    {
+        "id": 2,
+        "name": "test2",
+        "location": "Calculations/HalloTEST/",
+        "tasks": {
+            "waitingtasks": [
+                "Orca_Dihedral",
+                "GromacsProd"
+            ],
+            "finnishedtasks": [],
+            "failedtasks": [],
+            "runningtasks": [
+                "Orca_opt"
+            ]
+        }
+    }
+]

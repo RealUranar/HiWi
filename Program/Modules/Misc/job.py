@@ -11,79 +11,77 @@ from Amber import Amber
 
 
 class Job():
-    def __init__(self,name:str, id:int, location:str, tasks:dict):
-        self.name = name
-        self.id  = id
-        self.location = location
-        self.tasksPandas = tasks
-        self._sortTasks(tasks)
+    def __init__(self,dictIn):
+        for key in dictIn.keys():
+            setattr(self, key, dictIn[key])
 
-    def _sortTasks(self, tasksPandas):
+        self._convertTasks()
+
+    def toDict(self):
+        dictOut = {}
+        for key in self.__dict__.keys():
+            if key != "tasks":
+                dictOut[key] = self.__dict__[key]
+            else:
+                dictOut[key] = {}
+                for task in self.tasks:
+                    dictOut[key][task] = []
+                    for program in self.tasks[task]:
+                        dictOut[key][task].append(type(program).__name__)
+
+        return dictOut
+
+
+    def _convertTasks(self):
         taskToProgram = {
-            "Orca_Opt": Orca_opt,
+            "Orca_opt": Orca_opt,
             "Orca_Dihedral": Orca_Dihedral,
-            "Gaussian" : Gaussian_opt,
+            "Gaussian_opt" : Gaussian_opt,
             "Amber" : Amber,
             "GromacsEnergy": GromacsEnergy,
-            "GromacsEquil" : GromacsEquill,
-            "GromacsProduction": GromacsProd}
+            "GromacsEquill" : GromacsEquill,
+            "GromacsProd": GromacsProd}
         
-        self.tasks = {
-            "Done" : [],
-            "Ready" : [],
-            "Running" : [],
-            "Error" : [],
-        }
-        for task in tasksPandas.keys():
-            taskClass = taskToProgram[task](self)
-
-            match tasksPandas[task]:
-                case 1:
-                    self.tasks["Done"].append(taskClass)
-                case 2:
-                    self.tasks["Running"].append(taskClass)
-                case 3:
-                    self.tasks["Ready"].append(taskClass)
-                case -1:
-                    self.tasks["Error"].append(taskClass)
+        for task in self.tasks:
+            convertedPrograms = []
+            for program in self.tasks[task]:
+                convertedPrograms.append(taskToProgram[program](self))
+            self.tasks[task] = convertedPrograms
 
     def getNextTask(self) -> list[Task]:
-        return self.tasks["Ready"]
+        return self.tasks["waitingtasks"]
     
     def getFinishedTask(self) -> list[Task]:
-        return self.tasks["Done"]
+        return self.tasks["finnishedtasks"]
     
     def getRunningTask(self) -> list[Task]:
-        return self.tasks["Running"]
-
-    def getPanda(self) -> dict:
-        return list(self.tasksPandas.values())
+        return self.tasks["runningtasks"]
 
     def getLocation(self):
         return self.location
 
-    def updateJob(self, *args,**kwargs):
-        """
-        
-        """
-        for newTask in kwargs.keys():
-            if newTask not in list(self.tasksPandas.keys()):
-                print("Invaid task!")
-                continue
-            self.tasksPandas[newTask] = kwargs[newTask]
-
-        self._sortTasks(self.tasksPandas)
+    def updateJob(self, *args, **kwargs):
+        task = list(kwargs.keys())[0]
+        value = list(kwargs.values())[0]
+        if task not in list(self.tasks.keys()):
+            print("Invalid task!")
+            return None
+        self.tasks[task].append(value)
+        if task == "finnishedtasks":
+            self.tasks["runningtasks"].remove(value)
+        elif task == "runningtasks":
+            self.tasks["waitingtasks"].remove(value)
+        elif task == "failedtasks":
+            self.tasks["failedtasks"].remove(value)
 
 if __name__ == "__main__":
-    thing = Job(name = "TEST", id=2, location="Here/" ,tasks= dict({
-                                "Orca_Opt": 3,
-                                "Orca_Dihedral": 0,
-                                "Gaussian" : 0,
-                                "Amber" : 0,
-                                "GromacsEnergy":0,
-                                "GromacsEquil" : 0,
-                                "GromacsProduction": 0}))
-    
+    from database import JobDatabase
+    # JobDatabase.saveJob({"id": 1,'name': 'test', 'location': 'Calculations/TESTING/', "tasks": {'waitingtasks': ["Orca_Opt", "Orca_Dihedral", "Gromacs_Prod]"], "finnishedtasks": [], "failedtasks" : [], "runningtasks": []}}, 'test.json')
+    thing = Job(JobDatabase.loadJobs('test.json')[0])
+    print(thing.getNextTask()[0])
+    thing.updateJob(runningtasks = thing.getNextTask()[0])
+    # thing.id = 5
 
-    newThing = thing.getNextJob()[0]
-    print(newThing.newPath)
+
+    JobDatabase.saveJob(thing.toDict(), 'test.json')
+    # print(thing.__dict__)

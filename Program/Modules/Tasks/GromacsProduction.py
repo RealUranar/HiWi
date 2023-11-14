@@ -46,10 +46,10 @@ class GromacsProd(Task):
 
         if hasFinished:
             if succesfull:
-                self.job.updateJob(GromacsProduction = 1)
+                self.job.updateJob(finnishedtasks = self.job.getNextTask()[0])
                 print(f"Gromacs Job {self.job.name} has finished succesfull")
             else:
-                self.job.updateJob(GromacsProduction = -1)
+                self.job.updateJob(failedtasks = self.job.getNextTask()[0])
                 print(f"Gromacs Job {self.job.name} run into a problem")
         else:
             print(f"Gromacs Job {self.job.name} is still running")
@@ -91,7 +91,7 @@ class GromacsProd(Task):
                         text = True,
                         cwd=self.newPath)
             print(f"Setup for Gromacs production job {self.job.name} finished with code {ret.returncode}")
-            self.job.updateJob(GromacsProduction = 2)
+            self.job.updateJob(runningtasks = self.job.getNextTask()[0])
             print(f"Submitted Gromacs Production job {self.job.name}")
             return super().submit(self.newPath)
         

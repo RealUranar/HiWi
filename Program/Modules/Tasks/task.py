@@ -33,7 +33,7 @@ class Task():
             inFormat (str, optional): Format of the file. Defaults to "xyz".
 
         Returns:
-            list: _description_
+            list: array of the index of the substring
         """        
         from openbabel import pybel
         mol = pybel.readstring(inFormat, inStructure)
