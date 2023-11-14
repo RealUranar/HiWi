@@ -19,9 +19,9 @@ class GromacsEquill(Task):
         temp = Reader(f"{self.job.location}Input").getKeyword("temp")
         with open(f"{self.newPath}/em.mdp", "w") as file:
             if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
-                file.write(writeMDP(job_type="equilibration", temp=temp, nsteps=800000))
+                file.write(writeMdpFile(job_type="equilibration", temp=temp, nsteps=800000))
             else:
-                file.write(writeMDP(job_type="equilibration", temp=temp, nsteps=400000))
+                file.write(writeMdpFile(job_type="equilibration", temp=temp, nsteps=400000))
 
     def generateJobScript(self):
         with open(f"{self.newPath}/nvt.sh","w") as file:

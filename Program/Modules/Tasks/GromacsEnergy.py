@@ -42,7 +42,7 @@ class GromacsEnergy(Task):
                 file.write(writePlumed(dihedral=dihedral, RESTRAIN=True, PRINT=False))
 
         with open(f"{self.newPath}/em.mdp", "w") as file:
-            file.write(writeMDP(job_type="energy_minimization"))
+            file.write(writeMdpFile(job_type="energy_minimization"))
 
     def generateJobScript(self):
         with open(f"{self.newPath}/em.sh","w") as file:
