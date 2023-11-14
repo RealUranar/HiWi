@@ -5,6 +5,7 @@ sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 import subprocess
 from InputFileReader import Reader
+from writeMDP import writeMDP
 
 class GromacsEquill(Task):
     def __init__(self,job):
@@ -14,11 +15,13 @@ class GromacsEquill(Task):
                                self.generateJobScript,
                                self.submit]
         
-    def writeInputFile(self, temp =310):
-        if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
-            shutil.copy("Modules/GromacsScripts/nvt_rates.mdp", f"{self.newPath}/nvt.mdp")
-        else:
-            shutil.copy("Modules/GromacsScripts/nvt.mdp", f"{self.newPath}")
+    def writeInputFile(self):
+        temp = Reader(f"{self.job.location}Input").getKeyword("temp")
+        with open(f"{self.newPath}/em.mdp", "w") as file:
+            if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
+                file.write(writeMDP(job_type="equilibration", temp=temp, nsteps=800000))
+            else:
+                file.write(writeMDP(job_type="equilibration", temp=temp, nsteps=400000))
 
     def generateJobScript(self):
         with open(f"{self.newPath}/nvt.sh","w") as file:

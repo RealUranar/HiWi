@@ -6,7 +6,8 @@ from writePlumed import writePlumed
 from InputFileReader import Reader
 import numpy as np
 import subprocess
-  
+from writeMDP import writeMDP
+
 class GromacsProd(Task):
     def __init__(self,job):
         Task.__init__(self, job)
@@ -18,7 +19,10 @@ class GromacsProd(Task):
     def writeInputFile(self):
         self._getEnergys()
         self._writeTableFourier()
-        shutil.copy("Modules/GromacsScripts/prod.mdp", f"{self.newPath}")
+
+        temp = Reader(f"{self.job.location}Input").getKeyword("temp")
+        with open(f"{self.newPath}/prod.mdp", "w") as file:
+            file.write(writeMDP(job_type="equilibration", temp=temp))
         
         with open(f"{self.job.location}Gromacs/System.gro","r") as file:
             structure = file.read()

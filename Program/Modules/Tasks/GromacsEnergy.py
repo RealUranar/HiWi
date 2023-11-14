@@ -3,6 +3,8 @@ import subprocess
 from task import Task
 from InputFileReader import Reader
 from writePlumed import writePlumed
+from writeMDP import writeMDP
+
 
 class GromacsEnergy(Task):
     def __init__(self,job):
@@ -39,8 +41,8 @@ class GromacsEnergy(Task):
             with open(f"{self.newPath}/plumedRestraint.dat", "w") as file:
                 file.write(writePlumed(dihedral=dihedral, RESTRAIN=True, PRINT=False))
 
-
-        shutil.copy("Modules/GromacsScripts/em.mdp", f"{self.newPath}")
+        with open(f"{self.newPath}/em.mdp", "w") as file:
+            file.write(writeMDP(job_type="energy_minimization"))
 
     def generateJobScript(self):
         with open(f"{self.newPath}/em.sh","w") as file:
