@@ -1,9 +1,8 @@
 **.pyc
 .venv
-schedule.xlsx
 Database.json
 Program/Calculations/*
+Input
 COLVAR
-Analyses
 Tests
 .git-old
