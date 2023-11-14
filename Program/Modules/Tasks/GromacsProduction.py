@@ -6,7 +6,7 @@ from writePlumed import writePlumed
 from InputFileReader import Reader
 import numpy as np
 import subprocess
-from writeMDP import writeMDP
+from writeMDP import writeMdpFile
 
 class GromacsProd(Task):
     def __init__(self,job):

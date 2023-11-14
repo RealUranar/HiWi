@@ -5,7 +5,7 @@ sys.path.append("Modules/Misc")
 from Sbatch import JobScripts
 import subprocess
 from InputFileReader import Reader
-from writeMDP import writeMDP
+from writeMDP import writeMdpFile
 
 class GromacsEquill(Task):
     def __init__(self,job):
