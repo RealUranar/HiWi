@@ -115,12 +115,22 @@ class GromacsProd(Task):
     def _writeTableFourier(self):
         with open(f"{self.job.location}Amber/System.gro","r") as file:
             structure = file.read()
-        dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[0]
+        dihedral = np.array(self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[0])
+
+        nAtoms = int(structure.split("\n")[1])/16 #BE CAREFUL THIS 16 IS DANGEROUS!!!
+        start = dihedral[0]
+        first = -1
+        while start >0:
+            start -= nAtoms
+            first += 1
+        dihedral = dihedral-(nAtoms*first)
         
+
+
         with open(f"{self.newPath}/table_fourier.itp", "w") as file:
             file.writelines([
                 "; ai    aj    ak    al  funct   n   k\n",
-                f"{dihedral[0]}   {dihedral[1]}   {dihedral[2]}   {dihedral[3]}       8       0   1   \n"  
+                f"{int(dihedral[0])}   {int(dihedral[1])}   {int(dihedral[2])}   {int(dihedral[3])}       8       0   1   \n"  
             ])
 
     def _getEnergys(self):

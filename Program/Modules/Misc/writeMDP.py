@@ -91,7 +91,7 @@ JOB_PARAMETERS = {
 
         #Temperature coupling is on
         "tcoupl": "v-rescale",  # modified Berendsen thermostat
-        "tc-grps": "Protein Non-Protein",
+        "tc-grps": "System",
         "tau_t": 0.1,  #time constant, in ps
         "ref_t": 310,  #reference temperature, one for each group, in K
 

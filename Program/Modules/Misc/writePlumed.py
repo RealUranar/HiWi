@@ -47,7 +47,7 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
         out += "... METAD\n\n"
 
     if PRINT:
-        out += "PRINT FILE=COLVAR ARG=t,a,metad.*\n"
+        out += "PRINT FILE=COLVAR ARG=t,a,metad.bias,metad.rbias,metad.rct STRIDE=10\n"
         if RATES:
             out += "PRINT FILE=ACCEL ARG=metad.acc\n"
 
