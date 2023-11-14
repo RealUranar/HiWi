@@ -20,10 +20,11 @@ def setupNewCalculation(NewFolder):
     name = inputVars.getKeyword("Name")
     id = JobDatabase.getLastID("Database.json") + 1
     taks = inputVars.getKeyword("Tasks")[1]
+    newLocation = f"/hpcwork/om962181/Calculations/{name}/"
 
     JobDatabase.saveJob({"id": id,
                         'name': name,
-                        'location': f"Calculations/{name}/",
+                        'location': newLocation,
                         "tasks": {
                             'waitingtasks': taks,
                             "runningtasks": [],
@@ -31,10 +32,10 @@ def setupNewCalculation(NewFolder):
                             "failedtasks" : []}},
                         filepath= 'Database.json')
 
-    os.makedirs(f"Calculations/{name}/") #Create new Folder
+    os.makedirs(newLocation) #Create new Folder
     files = glob.glob(f"{NewFolder}/*")
     for file in files:
-        shutil.copy(file, f"Calculations/{name}/")  #Copy files temporarily
+        shutil.copy(file, newLocation)  #Copy files temporarily
     shutil.rmtree(NewFolder, ignore_errors = False) #Remove input folder
 
 #Handle new Jobs

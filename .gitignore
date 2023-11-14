@@ -1,6 +1,7 @@
 **.pyc
 .venv
 schedule.xlsx
+Database.json
 Program/Calculations/*
 COLVAR
 Analyses

@@ -15,6 +15,7 @@ class Orca_opt(Task):
                                self.submit]
 
     def moveFiles(self):
+        print(self.newPath)
         os.mkdir(self.newPath) # Create new SubFolders
         xyzFilePath = glob.glob(f"{self.job.location}/*.xyz")[0]  #Get Path to the xyz File
         shutil.copy(xyzFilePath, f"{self.newPath}/startMolecule.xyz") #Copy xyz File to new directory
