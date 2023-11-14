@@ -22,7 +22,7 @@ class GromacsProd(Task):
 
         temp = Reader(f"{self.job.location}Input").getKeyword("temp")
         with open(f"{self.newPath}/prod.mdp", "w") as file:
-            file.write(writeMdpFile(job_type="equilibration", temp=temp))
+            file.write(writeMdpFile(job_type="production", temp=temp))
         
         with open(f"{self.job.location}Gromacs/System.gro","r") as file:
             structure = file.read()
