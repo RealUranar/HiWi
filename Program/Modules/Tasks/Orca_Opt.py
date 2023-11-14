@@ -18,7 +18,6 @@ class Orca_opt(Task):
         print(self.newPath)
         os.mkdir(self.newPath) # Create new SubFolders
         xyzFilePath = list(set(glob.glob(f"{self.job.location}*.xyz")) - set(glob.glob(f"{self.job.location}fragment.xyz"))) #Get Path to the xyz File
-        xyzFilePath.remove("fragment.xyz")  #Remove the fragment file
         shutil.copy(xyzFilePath[0], f"{self.newPath}/startMolecule.xyz") #Copy xyz File to new directory
         os.remove(xyzFilePath[0])
 
