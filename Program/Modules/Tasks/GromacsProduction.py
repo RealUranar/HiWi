@@ -50,10 +50,10 @@ class GromacsProd(Task):
 
         if hasFinished:
             if succesfull:
-                self.job.updateJob(finnishedtasks = self.job.getNextTask()[0])
+                self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
                 print(f"Gromacs Job {self.job.name} has finished succesfull")
             else:
-                self.job.updateJob(failedtasks = self.job.getNextTask()[0])
+                self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
                 print(f"Gromacs Job {self.job.name} run into a problem")
         else:
             print(f"Gromacs Job {self.job.name} is still running")

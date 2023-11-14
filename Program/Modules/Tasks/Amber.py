@@ -58,12 +58,12 @@ class Amber(Task):
             amber.save(f"{self.newPath}/System.top")
             amber.save(f"{self.newPath}/System.gro")
 
-            self.job.updateJob(finnishedtasks = self.job.getNextTask()[0])
+            self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
             print(f"Amber Job for {self.job.name} succesfull!")
 
         except Exception as e:
             print(f"Amber Job Error: {e}")
-            self.job.updateJob(failedtasks = self.job.getNextTask()[0])
+            self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
             print(f"Amber Job for {self.job.name} failed!")
 
     def submit(self):
@@ -82,7 +82,7 @@ class Amber(Task):
 
         except Exception as e:
             print(f"Amber Job Error: {e}")
-            self.job.updateJob(failedtasks = self.job.getNextTask()[0])
+            self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
             print(f"Amber Job for {self.job.name} failed!")
 
 

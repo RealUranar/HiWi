@@ -44,7 +44,7 @@ class GromacsEquill(Task):
                     cwd=self.newPath)
         print(f"Gromacs equillibration returned code: {ret.returncode}")
         if ret.returncode != 0:
-             self.job.updateJob(failedtasks = self.job.getNextTask()[0])
+             self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
         else:
             self.job.updateJob(runningtasks = self.job.getNextTask()[0])
             print(f"Submitted Gromacs Equillibration job {self.job.name}")
@@ -57,10 +57,10 @@ class GromacsEquill(Task):
 
         if hasFinished:
             if succesfull:
-                self.job.updateJob(finnishedtasks = self.job.getNextTask()[0])
+                self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
                 print(f"Gromacs Job {self.job.name} has finished succesfull")
             else:
-                self.job.updateJob(failedtasks = self.job.getNextTask()[0])
+                self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
                 print(f"Gromacs Job {self.job.name} run into a problem")
         else:
             print(f"Gromacs Job {self.job.name} is still running")
