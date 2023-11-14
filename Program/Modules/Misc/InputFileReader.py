@@ -47,7 +47,7 @@ class Reader():
         try:
             return  self.keyWordsDict[keyword.lower()]
         except KeyError:
-            print("Keyword not found")
+            print(f"Keyword {keyword} not found")
             return None
         
 
