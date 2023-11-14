@@ -3,7 +3,7 @@ import subprocess
 from task import Task
 from InputFileReader import Reader
 from writePlumed import writePlumed
-from writeMDP import writeMDP
+from writeMDP import writeMdpFile
 
 
 class GromacsEnergy(Task):
