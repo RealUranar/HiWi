@@ -104,7 +104,7 @@ JOB_PARAMETERS = {
     }
 }
 
-def writeMdpFile(filename, job_type, Temp=None, nsteps=None):
+def writeMdpFile(job_type, Temp=None, nsteps=None):
     if job_type not in JOB_PARAMETERS:
         print("Invalid job type")
         return
