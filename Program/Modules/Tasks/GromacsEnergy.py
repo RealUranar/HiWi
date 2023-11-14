@@ -58,15 +58,16 @@ class GromacsEnergy(Task):
 
 
     def submit(self):
+        self.job.updateJob(runningtasks = self.job.getNextTasks()[0])
         ret = subprocess.run(f"./em.sh",
                     capture_output = True, 
                     text = True,
                     cwd=self.newPath)
         
         if ret.returncode != 0:
-             self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
+             self.job.updateJob(failedtasks = self.job.getRunningTasks()[0])
         else: 
-            self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
+            self.job.updateJob(finnishedtasks = self.job.getRunningTasks()[0])
         print(f"Gromacs energy minimization returned code: {ret.returncode}")
         
 

@@ -48,14 +48,17 @@ class Job():
                 convertedPrograms.append(taskToProgram[program](self))
             self.tasks[task] = convertedPrograms
 
-    def getNextTask(self) -> list[Task]:
+    def getNextTasks(self) -> list[Task]:
         return self.tasks["waitingtasks"]
     
-    def getFinishedTask(self) -> list[Task]:
+    def getFinishedTasks(self) -> list[Task]:
         return self.tasks["finnishedtasks"]
     
-    def getRunningTask(self) -> list[Task]:
+    def getRunningTasks(self) -> list[Task]:
         return self.tasks["runningtasks"]
+    
+    def getFailedTasks(self) -> list[Task]:
+        return self.tasks["failedtasks"]
 
     def getLocation(self):
         return self.location
@@ -72,14 +75,14 @@ class Job():
         elif task == "runningtasks":
             self.tasks["waitingtasks"].remove(value)
         elif task == "failedtasks":
-            self.tasks["failedtasks"].remove(value)
+            self.tasks["runningtasks"].remove(value)
 
 if __name__ == "__main__":
     from database import JobDatabase
     # JobDatabase.saveJob({"id": 1,'name': 'test', 'location': 'Calculations/TESTING/', "tasks": {'waitingtasks': ["Orca_Opt", "Orca_Dihedral", "Gromacs_Prod]"], "finnishedtasks": [], "failedtasks" : [], "runningtasks": []}}, 'test.json')
     thing = Job(JobDatabase.loadJobs('test.json')[0])
-    print(thing.getNextTask()[0])
-    thing.updateJob(runningtasks = thing.getNextTask()[0])
+    print(thing.getNextTasks()[0])
+    thing.updateJob(runningtasks = thing.getNextTasks()[0])
     # thing.id = 5
 
 

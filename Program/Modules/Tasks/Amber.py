@@ -58,17 +58,17 @@ class Amber(Task):
             amber.save(f"{self.newPath}/System.top")
             amber.save(f"{self.newPath}/System.gro")
 
-            self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
+            self.job.updateJob(finnishedtasks = self.job.getRunningTasks()[0])
             print(f"Amber Job for {self.job.name} succesfull!")
 
         except Exception as e:
             print(f"Amber Job Error: {e}")
-            self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
+            self.job.updateJob(failedtasks = self.job.getRunningTasks()[0])
             print(f"Amber Job for {self.job.name} failed!")
 
     def submit(self):
         from unitcell import makeUnitcell
-        self.job.updateJob(runningtasks = self.job.getNextTask()[0])
+        self.job.updateJob(runningtasks = self.job.getNextTasks()[0])
 
         try:
             self._runCondaScript(script="antechamber -fi gout -fo prepi -c resp -i gauss.log -o amber.prep -rn F1 -at gaff2", taskFolder=self.newPath)
@@ -82,7 +82,7 @@ class Amber(Task):
 
         except Exception as e:
             print(f"Amber Job Error: {e}")
-            self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
+            self.job.updateJob(failedtasks = self.job.getRunningTasks()[0])
             print(f"Amber Job for {self.job.name} failed!")
 
 

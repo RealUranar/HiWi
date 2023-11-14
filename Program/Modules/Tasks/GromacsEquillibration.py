@@ -17,7 +17,7 @@ class GromacsEquill(Task):
         
     def writeInputFile(self):
         temp = Reader(f"{self.job.location}Input").getKeyword("temp")
-        with open(f"{self.newPath}/em.mdp", "w") as file:
+        with open(f"{self.newPath}/nvt.mdp", "w") as file:
             if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
                 file.write(writeMdpFile(job_type="equilibration", temp=temp, nsteps=800000))
             else:
@@ -38,15 +38,17 @@ class GromacsEquill(Task):
             JobScripts().writeGromacsJob(name = self.job.id, location=self.newPath,  inputFile= "nvt.tpr",plumed="", tableb="", jobtype="nvt", time= "0-01:00:00")
 
     def submit(self):
+        self.job.updateJob(runningtasks = self.job.getNextTasks()[0])
         ret = subprocess.run(f"./nvt.sh",
                     capture_output = True, 
                     text = True,
                     cwd=self.newPath)
         print(f"Gromacs equillibration returned code: {ret.returncode}")
         if ret.returncode != 0:
-             self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
+             print(f"{ret}")
+             self.job.updateJob(failedtasks = self.job.getRunningTasks()[0])
         else:
-            self.job.updateJob(runningtasks = self.job.getNextTask()[0])
+            self.job.updateJob(runningtasks = self.job.getNextTasks()[0])
             print(f"Submitted Gromacs Equillibration job {self.job.name}")
             return super().submit(self.newPath)
         
@@ -57,10 +59,10 @@ class GromacsEquill(Task):
 
         if hasFinished:
             if succesfull:
-                self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
+                self.job.updateJob(finnishedtasks = self.job.getRunningTasks()[0])
                 print(f"Gromacs Job {self.job.name} has finished succesfull")
             else:
-                self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
+                self.job.updateJob(failedtasks = self.job.getRunningTasks()[0])
                 print(f"Gromacs Job {self.job.name} run into a problem")
         else:
             print(f"Gromacs Job {self.job.name} is still running")

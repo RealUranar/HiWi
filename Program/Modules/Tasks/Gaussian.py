@@ -46,7 +46,7 @@ class Gaussian_opt(Task):
         JobScripts().writeGausianJob(name = self.job.id, location=self.newPath)
 
     def submit(self):
-        self.job.updateJob(runningtasks = self.job.getNextTask()[0])
+        self.job.updateJob(runningtasks = self.job.getNextTasks()[0])
         print(f"Submitted Gaussian job {self.job.name}")
         return super().submit(self.newPath)
         
@@ -58,10 +58,10 @@ class Gaussian_opt(Task):
             
         if hasFinished:
             if succesfull:
-                self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
+                self.job.updateJob(finnishedtasks = self.job.getRunningTasks()[0])
                 print(f"Gaussian Job {self.job.name} has finished succesfull")
             else:
-                self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
+                self.job.updateJob(failedtasks = self.job.getRunningTasks()[0])
                 print(f"Gaussian Job {self.job.name} run into a problem")
         else:
             print(f"Gaussian Job {self.job.name} is still running")

@@ -51,7 +51,7 @@ class Orca_Dihedral(Task):
             JobScripts().writeOrcaJob(name = self.job.id, location=f"{self.newPath}/{subFolder}")
 
     def submit(self):
-        self.job.updateJob(runningtasks = self.job.getNextTask()[0])
+        self.job.updateJob(runningtasks = self.job.getNextTasks()[0])
         for subFolder in self.subFolders:
             super().submit(f"{self.newPath}/{subFolder}")
         return        
@@ -72,14 +72,14 @@ class Orca_Dihedral(Task):
                 if succesfull:
                     print(f"Orca dihedral Job {self.job.name}/{subfolder} has finished succesfull")
                 else:
-                    self.job.updateJob(failedtasks = self.job.getRunningTask()[0])
+                    self.job.updateJob(failedtasks = self.job.getRunningTasks()[0])
                     allDone = False
                     print(f"Gromacs Job {self.job.name}/{subfolder} run into a problem")
             else:
                 allDone = False
                 print(f"Orca dihedral Job {self.job.name}/{subfolder} is still running")
         if allDone:
-            self.job.updateJob(finnishedtasks = self.job.getRunningTask()[0])
+            self.job.updateJob(finnishedtasks = self.job.getRunningTasks()[0])
         
 
 

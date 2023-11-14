@@ -48,10 +48,11 @@ for job in JobDatabase.loadJobs("Database.json"):
     jobs.append(Job(job))
 
 for job in jobs:
-    for runningTask in job.getRunningTask():
+    print(f"\nHandling Job {job.name}")
+    for runningTask in job.getRunningTasks():
         runningTask.isFinished() #Check if a job has finished
 
-    if job.getRunningTask() == [] and job.getNextTask() != []: #If no job is running and there is a job to run
+    if job.getRunningTasks() == [] and job.getFailedTasks() == []: #If no job is running and there is a job to run
         for func in job.getNextTask()[0].executionOrder:
             func()  #Execute every function defined in the execute order
 

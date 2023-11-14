@@ -104,7 +104,7 @@ JOB_PARAMETERS = {
     }
 }
 
-def writeMdpFile(job_type, Temp=None, nsteps=None):
+def writeMdpFile(job_type, temp=None, nsteps=None):
     if job_type not in JOB_PARAMETERS:
         print("Invalid job type")
         return
@@ -112,11 +112,11 @@ def writeMdpFile(job_type, Temp=None, nsteps=None):
     parameters = JOB_PARAMETERS[job_type]
     if nsteps is not None:
         parameters["nsteps"] = nsteps
-    if Temp is not None:
+    if temp is not None:
         if "ref_t" in parameters:
-            parameters["ref_t"] = Temp
+            parameters["ref_t"] = temp
         if "gen_temp" in parameters:
-            parameters["gen_temp"] = Temp
+            parameters["gen_temp"] = temp
 
     out = ""
     for key, value in parameters.items():
