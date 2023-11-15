@@ -1,4 +1,7 @@
-def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
+def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True, temp=None):
+    if temp == None:
+        temp = 310.0
+
     out = "UNITS LENGTH=A TIME=0.001\n"
     out += f"t: TORSION ATOMS={dihedral[0]},{dihedral[1]},{dihedral[2]},{dihedral[3]}\n"
     out += f"a: ALPHABETA ATOMS1={dihedral[0]},{dihedral[1]},{dihedral[2]},{dihedral[3]} REFERENCE=3.14\n\n"
@@ -35,7 +38,7 @@ def writePlumed(dihedral, METAD=False, RATES=False,RESTRAIN=False, PRINT=True):
         "CALC_RCT",
         "FILE=HILLS",
         "BIASFACTOR=60",
-        "TEMP=310.0"
+        f"TEMP={temp}"
         ]
         out += "METAD ...\n"
         for word in lines:

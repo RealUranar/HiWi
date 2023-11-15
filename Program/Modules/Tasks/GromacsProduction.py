@@ -27,11 +27,13 @@ class GromacsProd(Task):
         with open(f"{self.job.location}Gromacs/System.gro","r") as file:
             structure = file.read()
         dihedral = self._findSubstring(smilesString="*N=N*" ,inStructure=structure, inFormat="gro")[6]
+        temp = Reader(f"{self.job.location}Input").getKeyword("temp")
+
         with open(f"{self.newPath}/plumed.dat", "w") as file:
             if Reader(f"{self.job.location}Input").getKeyword("tasks")[0] == "rates":
-                file.write(writePlumed(dihedral, METAD=True, RATES=True))
+                file.write(writePlumed(dihedral, METAD=True, RATES=True, temp=float(temp)))
             else:
-                file.write(writePlumed(dihedral, METAD=True))
+                file.write(writePlumed(dihedral, METAD=True, temp=float(temp)))
 
     def generateJobScript(self):
         with open(f"{self.newPath}/prod.sh","w") as file:
